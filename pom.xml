@@ -7,7 +7,7 @@
     <groupId>maestro194.bomberman</groupId>
     <artifactId>testing</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>testing</name>
+    <name>BombermanGame</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
