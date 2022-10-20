@@ -2,6 +2,7 @@ package BombermanGame;
 
 import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
+import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
@@ -15,6 +16,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -27,7 +29,7 @@ public class BombermanGame extends Application {
     private String path;
     private ArrayList<Entity> dynamicEntities = new ArrayList<>();
     private ArrayList<Entity> stillEntities = new ArrayList<>();
-    private Bomber bomber = new Bomber();
+    private Bomber bomber;/// = new Bomber();
 
     private Canvas canvas;
     private GraphicsContext gc;
@@ -53,6 +55,9 @@ public class BombermanGame extends Application {
             path = directory.getAbsolutePath() + "/src/main/resources/Map/level_" + level + ".m";
             BufferedReader mapReader = new BufferedReader(new FileReader(new File(path)));
             mapReader.readLine();
+            for (int i = 1; i < HEIGHT-1; ++i)
+                for (int j = 1; j < WIDTH-1; ++j)
+                    addEntity(new Grass(j, i));
             for (int i = 0; i < HEIGHT; ++i) {
                 ///for (int j = 0; j < WIDTH; ++j) {
                     Entity object;
@@ -61,13 +66,13 @@ public class BombermanGame extends Application {
                         char type = line.charAt(j);
                         switch (type) {
                             case '#':
-                                object = new Wall(j, i, Sprite.wall.getFxImage());
+                                object = new Wall(j, i);
                                 break;
                             case '*':
-                                object = new Brick(j, i, Sprite.brick.getFxImage());
+                                object = new Bomb(j, i);
                                 break;
                             default:
-                                object = new Grass(j, i, Sprite.grass.getFxImage());
+                                object = new Grass(j, i);
                                 break;
                             /**default:
                                 object = new Bomber(j, i, Sprite.player_right.getFxImage());
@@ -75,11 +80,8 @@ public class BombermanGame extends Application {
                         }
                         addEntity(object);
                     }
-                    ///System.out.println(line + " " + line.length());
-                    ///System.out.print(type);
                 }
                 addEntity(bomber = new Bomber(1, 1, Sprite.player_right.getFxImage()));
-                ///System.out.println();
             } catch (FileNotFoundException ex) {
             throw new RuntimeException(ex);
         } catch (IOException ex) {
@@ -94,7 +96,8 @@ public class BombermanGame extends Application {
     }
 
     private void update() {
-
+        stillEntities.forEach(g -> g.update());
+        dynamicEntities.forEach(g -> g.update());
     }
     @Override
     public void start(Stage stage) throws Exception {
@@ -108,6 +111,12 @@ public class BombermanGame extends Application {
 
         loadMap();
 
+        /**Grass grass1 = new Grass(0, 0, Sprite.grass.getFxImage());
+        Grass grass2 = new Bomb(0, 1);
+        grass1.render(gc);
+        grass2.render(gc);*/
+        /**Bomb bomb = new Bomb(0, 0);
+        dynamicEntities.add(bomb);*/
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {

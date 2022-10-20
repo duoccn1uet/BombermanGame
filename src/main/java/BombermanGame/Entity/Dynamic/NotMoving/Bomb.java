@@ -8,8 +8,8 @@ public class Bomb extends NotMovingEntity {
         super(xUnit, yUnit, img);
     }
 
-    @Override
-    public void update() {
-
+    public Bomb(int x, int y) {
+        super(x, y);
     }
+
 }

@@ -9,5 +9,9 @@ public abstract class StillEntity extends Entity {
         super(xUnit, yUnit, img);
     }
 
+    public StillEntity(int x, int y) {
+        super(x, y);
+    }
+
     public abstract void update();
 }

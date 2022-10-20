@@ -3,13 +3,22 @@ package BombermanGame.Sprite;
 import javafx.scene.image.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.IntBuffer;
 
 /**
  * Lưu trữ thông tin các pixel của 1 sprite (hình ảnh game)
  */
 public class Sprite {
-	
+	public static final String path;
+
+	static {
+		path = new File(".").getAbsolutePath() + "/src/main/resources/Sprite";
+	}
+
 	public static final int DEFAULT_SIZE = 16;
 	public static final int SCALED_SIZE = DEFAULT_SIZE * 2;
     private static final int TRANSPARENT_COLOR = 0xffff00ff;
@@ -201,7 +210,36 @@ public class Sprite {
 		_pixels = new int[SIZE * SIZE];
 		setColor(color);
 	}
-	
+
+	public static Image getImage(String imageName) {
+		try {
+			FileInputStream f = new FileInputStream(Sprite.path + "/" + imageName);
+			return new Image(f);
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return null;
+	}
+	public static Image getFxImage(String imageName) {
+		Image image = getImage(imageName);
+		PixelReader r = image.getPixelReader();
+		int width = (int) image.getWidth();
+		int height = (int) image.getHeight();
+		WritableImage wr = new WritableImage(width, height);
+		PixelWriter w = wr.getPixelWriter();
+		for (int i = 0; i < height; ++i)
+			for (int j = 0; j < width; ++j) {
+				int argb = r.getArgb(i, j);
+				if (argb == TRANSPARENT_COLOR) {
+					w.setArgb(i, j, 0);
+				} else {
+					w.setArgb(i, j, argb);
+				}
+			}
+		Image input = new ImageView(wr).getImage();
+		return resample(input, SCALED_SIZE / DEFAULT_SIZE);
+	}
 	private void setColor(int color) {
 		for (int i = 0; i < _pixels.length; i++) {
 			_pixels[i] = color;
@@ -261,7 +299,7 @@ public class Sprite {
         return resample(input, SCALED_SIZE / DEFAULT_SIZE);
     }
 
-	private Image resample(Image input, int scaleFactor) {
+	private static Image resample(Image input, int scaleFactor) {
 		final int W = (int) input.getWidth();
 		final int H = (int) input.getHeight();
 		final int S = scaleFactor;

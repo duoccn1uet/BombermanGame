@@ -8,4 +8,13 @@ public abstract class NotMovingEntity extends DynamicEntity {
     public NotMovingEntity(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
     }
+
+    public NotMovingEntity(int x, int y) {
+        super(x, y);
+    }
+
+    @Override
+    public void update() {
+        setImg(animation.getCurrentImage());
+    }
 }
