@@ -64,5 +64,11 @@ public abstract class Entity {
     public void render(GraphicsContext gc) {
         gc.drawImage(img, x, y);
     }
+
+    public String getEntityName(boolean toLowerCase) {
+        if (toLowerCase)
+            return this.getClass().getSimpleName().toLowerCase();
+        return this.getClass().getSimpleName();
+    }
     public abstract void update();
 }

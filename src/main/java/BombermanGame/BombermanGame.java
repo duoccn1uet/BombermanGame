@@ -2,25 +2,34 @@ package BombermanGame;
 
 import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
+import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
 import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
+import BombermanGame.KeyEventHandler.KeyEventHandler;
+import BombermanGame.KeyEventHandler.KeyEventHandlerImpl;
+import BombermanGame.KeyEventHandler.KeyEventListener;
 import BombermanGame.Map.Map;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BombermanGame extends Application {
     public static final int WIDTH = 31;
@@ -30,6 +39,9 @@ public class BombermanGame extends Application {
     private ArrayList<Entity> dynamicEntities = new ArrayList<>();
     private ArrayList<Entity> stillEntities = new ArrayList<>();
     private Bomber bomber;/// = new Bomber();
+
+    private Group root;
+    private Scene scene;
 
     private Canvas canvas;
     private GraphicsContext gc;
@@ -89,6 +101,11 @@ public class BombermanGame extends Application {
         }
     }
 
+    private void loadEventHandler() {
+        KeyEventHandler g = new KeyEventHandlerImpl();
+        g.init(scene);
+
+    }
     private void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         stillEntities.forEach(g -> g.render(gc));
@@ -104,12 +121,13 @@ public class BombermanGame extends Application {
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
         gc = canvas.getGraphicsContext2D();
 
-        Group root = new Group();
+        root = new Group();
         root.getChildren().add(canvas);
-        Scene scene = new Scene(root);
+        scene = new Scene(root);
         stage.setScene(scene);
 
         loadMap();
+        loadEventHandler();
 
         /**Grass grass1 = new Grass(0, 0, Sprite.grass.getFxImage());
         Grass grass2 = new Bomb(0, 1);

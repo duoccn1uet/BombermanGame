@@ -1,8 +1,9 @@
 package BombermanGame.Entity.Dynamic;
 
+import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_STATUS;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
-import BombermanGame.Entity.Entity;
 import BombermanGame.Sprite.Sprite;
 import javafx.scene.image.Image;
 
@@ -11,23 +12,25 @@ import java.util.ArrayList;
 
 public class Animation {
     /*
-        Direction string format:
-        name + '_' + direction + number;
+        Name of animation image format:
+        name + '_' + state + number;
         I.e: minvo_left2
+             minvo_dead1
      */
     private static final int LOOP_TIME = 15;
     private int moveListPointer = 0;
     private int countLoop = 0;
-    private Entity entity;
+    private DynamicEntity entity;
     private ArrayList<Image> normal = new ArrayList<>();
     private ArrayList<Image> upMove = new ArrayList<>();
     private ArrayList<Image> rightMove = new ArrayList<>();
     private ArrayList<Image> downMove = new ArrayList<>();
     private ArrayList<Image> leftMove = new ArrayList<>();
+    private ArrayList<Image> dead = new ArrayList<>();
 
-    private void loadImageList(String entityName, String direction, ArrayList<Image> moveList) {
+    private void loadImageList(String entityName, String state, ArrayList<Image> moveList) {
         for (int i = 1; true; ++i) {
-            String imageName = entityName + "_" + direction + i + ".png";
+            String imageName = entityName + "_" + state + i + ".png";
             if (new File(Sprite.path + "/" + imageName).exists()) {
                 moveList.add(Sprite.getFxImage(imageName));
             } else break;
@@ -42,6 +45,7 @@ public class Animation {
                 loadImageList(entityName, "right", rightMove);
                 loadImageList(entityName, "down", downMove);
                 loadImageList(entityName, "left", leftMove);
+                loadImageList(entityName, "dead", dead);
             } else if (entity instanceof NotMovingEntity) {
                 String entityName = entity.getClass().getSimpleName().toLowerCase();
                 normal.add(Sprite.getFxImage(entityName + ".png"));
@@ -68,7 +72,23 @@ public class Animation {
         if (entity instanceof NotMovingEntity) {
             return getCurrentImage(normal);
         } else {
-            return null;
+            MovingEntity tEntity = (MovingEntity) entity;
+            if (tEntity.getStatus() == MOVING_ENTITY_STATUS.DEAD) {
+                return getCurrentImage(dead);
+            }
+            DIRECTION entityDirection = ((MovingEntity) tEntity).getDirection();
+            switch (entityDirection) {
+                case RIGHT:
+                    return getCurrentImage(rightMove);
+                case UP:
+                    return getCurrentImage(upMove);
+                case DOWN:
+                    return getCurrentImage(downMove);
+                case LEFT:
+                    return getCurrentImage(leftMove);
+                default:
+                    return getCurrentImage(normal);
+            }
         }
     }
 }
