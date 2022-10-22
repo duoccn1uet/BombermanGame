@@ -1,5 +1,6 @@
 package BombermanGame.Entity.Dynamic.NotMoving;
 
+import BombermanGame.Entity.Entity;
 import javafx.scene.image.Image;
 
 public class Brick extends NotMovingEntity {
@@ -14,6 +15,11 @@ public class Brick extends NotMovingEntity {
 
     @Override
     public void update() {
+
+    }
+
+    @Override
+    public void collide(Entity entity) {
 
     }
 }

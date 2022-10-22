@@ -1,15 +1,15 @@
-package BombermanGame.Entity.Dynamic.NotMoving;
+package BombermanGame.Entity.Dynamic.Moving.Enemy;
 
 import BombermanGame.Entity.Entity;
 import javafx.scene.image.Image;
 
-public class Bomb extends NotMovingEntity {
+public class Oneal extends Enemy {
 
-    public Bomb(int xUnit, int yUnit, Image img) {
+    public Oneal(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
     }
 
-    public Bomb(int x, int y) {
+    public Oneal(int x, int y) {
         super(x, y);
     }
 
@@ -17,5 +17,4 @@ public class Bomb extends NotMovingEntity {
     public void collide(Entity entity) {
 
     }
-
 }

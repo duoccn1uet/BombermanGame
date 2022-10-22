@@ -2,6 +2,7 @@ package BombermanGame;
 
 import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Balloom;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
@@ -30,7 +31,6 @@ public class BombermanGame extends Application {
     private ArrayList<Entity> dynamicEntities = new ArrayList<>();
     private ArrayList<Entity> stillEntities = new ArrayList<>();
     private Bomber bomber;/// = new Bomber();
-
     private Canvas canvas;
     private GraphicsContext gc;
 
@@ -69,24 +69,46 @@ public class BombermanGame extends Application {
                                 object = new Wall(j, i);
                                 break;
                             case '*':
-                                object = new Bomb(j, i);
+                                object = new Brick(j, i);
+                                break;
+                            case 'p':
+                                object = new Bomber(j, i, Sprite.player_right.getFxImage());
+                                break;
+                            case '1':
+                                object = new Balloom(j, i, Sprite.balloom_right1.getFxImage());
                                 break;
                             default:
                                 object = new Grass(j, i);
                                 break;
-                            /**default:
-                                object = new Bomber(j, i, Sprite.player_right.getFxImage());
-                                break;*/
                         }
                         addEntity(object);
                     }
                 }
-                addEntity(bomber = new Bomber(1, 1, Sprite.player_right.getFxImage()));
             } catch (FileNotFoundException ex) {
             throw new RuntimeException(ex);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private void checkCollision() {
+        for(Entity entity1 : dynamicEntities) {
+            for(Entity entity2 : dynamicEntities) {
+                handleCollision(entity1, entity2);
+            }
+            for(Entity entity2 : stillEntities) {
+                handleCollision(entity1, entity2);
+            }
+        }
+    }
+
+    private boolean handleCollision(Entity entity1, Entity entity2) {
+        if(entity1.isColliding(entity2)) {
+            entity1.collide(entity2);
+            entity2.collide(entity1);
+            return true;
+        }
+        return false;
     }
 
     private void render() {
@@ -111,17 +133,12 @@ public class BombermanGame extends Application {
 
         loadMap();
 
-        /**Grass grass1 = new Grass(0, 0, Sprite.grass.getFxImage());
-        Grass grass2 = new Bomb(0, 1);
-        grass1.render(gc);
-        grass2.render(gc);*/
-        /**Bomb bomb = new Bomb(0, 0);
-        dynamicEntities.add(bomb);*/
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                render();
                 update();
+                checkCollision();
+                render();
             }
         };
         timer.start();
