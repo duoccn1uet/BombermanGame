@@ -94,10 +94,12 @@ public class BombermanGame extends Application {
     private void checkCollision() {
         for(Entity entity1 : dynamicEntities) {
             for(Entity entity2 : dynamicEntities) {
-                handleCollision(entity1, entity2);
+                if(handleCollision(entity1, entity2))
+                    break;
             }
             for(Entity entity2 : stillEntities) {
-                handleCollision(entity1, entity2);
+                if(handleCollision(entity1, entity2))
+                    break;
             }
         }
     }
