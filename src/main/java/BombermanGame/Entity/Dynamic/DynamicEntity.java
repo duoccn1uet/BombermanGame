@@ -27,5 +27,9 @@ public abstract class DynamicEntity extends Entity {
         animation.load(this);
     }
 
+    protected DynamicEntity() {
+        super();
+    }
+
     public abstract void update();
 }

@@ -14,6 +14,10 @@ public abstract class Entity {
 
     protected Image img;
 
+    protected Entity() {
+
+    }
+
     public Image getImg() {
         return img;
     }
@@ -36,7 +40,7 @@ public abstract class Entity {
             this.img = Sprite.getFxImage(className + ".png");
         }
         catch (Exception e) {
-            System.out.println("Failed to load" + className);
+            System.out.println(e.getMessage());
         }
     }
 
@@ -54,6 +58,12 @@ public abstract class Entity {
         gc.drawImage(img, position.getX(), position.getY());
     }
 
+
+    public String getEntityName(boolean toLowerCase) {
+        if (toLowerCase)
+            return this.getClass().getSimpleName().toLowerCase();
+        return this.getClass().getSimpleName();
+    }
     public abstract void update();
 
     // Collision
