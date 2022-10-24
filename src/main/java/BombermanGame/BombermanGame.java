@@ -45,6 +45,7 @@ public class BombermanGame extends Application {
 
     private Canvas canvas;
     private GraphicsContext gc;
+    KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
 
     public void runGame(String[] args) {
         launch(args);
@@ -102,9 +103,8 @@ public class BombermanGame extends Application {
     }
 
     private void loadEventHandler() {
-        KeyEventHandler g = new KeyEventHandlerImpl();
-        g.init(scene);
-
+        keyEventHandler.init(scene);
+        keyEventHandler.registerEvent(bomber);
     }
     private void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -129,12 +129,6 @@ public class BombermanGame extends Application {
         loadMap();
         loadEventHandler();
 
-        /**Grass grass1 = new Grass(0, 0, Sprite.grass.getFxImage());
-        Grass grass2 = new Bomb(0, 1);
-        grass1.render(gc);
-        grass2.render(gc);*/
-        /**Bomb bomb = new Bomb(0, 0);
-        dynamicEntities.add(bomb);*/
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {

@@ -4,8 +4,7 @@ public enum DIRECTION {
     UP(0),
     RIGHT(1),
     DOWN(2),
-    LEFT(3),
-    NONE(4);
+    LEFT(3);
 
     private final int value;
     public static final int size;
@@ -19,7 +18,7 @@ public enum DIRECTION {
     public int getValue() {
         return value;
     }
-    public int size() {
+    public static int size() {
         return size;
     }
 }

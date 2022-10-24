@@ -17,6 +17,10 @@ public abstract class Entity {
 
     protected Image img;
 
+    protected Entity() {
+
+    }
+
     public Image getImg() {
         return img;
     }

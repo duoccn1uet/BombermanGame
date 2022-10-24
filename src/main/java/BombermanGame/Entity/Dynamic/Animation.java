@@ -1,7 +1,7 @@
 package BombermanGame.Entity.Dynamic;
 
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
-import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_STATUS;
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
 import BombermanGame.Sprite.Sprite;
@@ -22,12 +22,13 @@ public class Animation {
     private int countLoop = 0;
     private DynamicEntity entity;
     private ArrayList<Image> normal = new ArrayList<>();
-    private ArrayList<Image> upMove = new ArrayList<>();
-    private ArrayList<Image> rightMove = new ArrayList<>();
-    private ArrayList<Image> downMove = new ArrayList<>();
-    private ArrayList<Image> leftMove = new ArrayList<>();
+    private ArrayList<Image>[] directionMoves = new ArrayList[DIRECTION.size()];
     private ArrayList<Image> dead = new ArrayList<>();
 
+    Animation() {
+        for (int i = 0; i < directionMoves.length; ++i)
+            directionMoves[i] = new ArrayList<>();
+    }
     private void loadImageList(String entityName, String state, ArrayList<Image> moveList) {
         for (int i = 1; true; ++i) {
             String imageName = entityName + "_" + state + i + ".png";
@@ -41,10 +42,13 @@ public class Animation {
             this.entity = entity;
             if (entity instanceof MovingEntity) {
                 String entityName = entity.getClass().getSimpleName().toLowerCase();
-                loadImageList(entityName, "up", upMove);
-                loadImageList(entityName, "right", rightMove);
-                loadImageList(entityName, "down", downMove);
-                loadImageList(entityName, "left", leftMove);
+//                loadImageList(entityName, "up", upMove);
+//                loadImageList(entityName, "right", rightMove);
+//                loadImageList(entityName, "down", downMove);
+//                loadImageList(entityName, "left", leftMove);
+                for (DIRECTION direction : DIRECTION.values()) {
+                    loadImageList(entityName, direction.name().toLowerCase(), directionMoves[direction.getValue()]);
+                }
                 loadImageList(entityName, "dead", dead);
             } else if (entity instanceof NotMovingEntity) {
                 String entityName = entity.getClass().getSimpleName().toLowerCase();
@@ -73,21 +77,15 @@ public class Animation {
             return getCurrentImage(normal);
         } else {
             MovingEntity tEntity = (MovingEntity) entity;
-            if (tEntity.getStatus() == MOVING_ENTITY_STATUS.DEAD) {
-                return getCurrentImage(dead);
-            }
-            DIRECTION entityDirection = ((MovingEntity) tEntity).getDirection();
-            switch (entityDirection) {
-                case RIGHT:
-                    return getCurrentImage(rightMove);
-                case UP:
-                    return getCurrentImage(upMove);
-                case DOWN:
-                    return getCurrentImage(downMove);
-                case LEFT:
-                    return getCurrentImage(leftMove);
-                default:
-                    return getCurrentImage(normal);
+            switch (tEntity.getAction()) {
+                case DEAD:
+                    return getCurrentImage(dead);
+                case STOP:
+                    DIRECTION entityDirection = tEntity.getDirection();
+                    return directionMoves[entityDirection.getValue()].get(0);
+                default: /// Moving
+                    entityDirection = tEntity.getDirection();
+                    return getCurrentImage(directionMoves[entityDirection.getValue()]);
             }
         }
     }
