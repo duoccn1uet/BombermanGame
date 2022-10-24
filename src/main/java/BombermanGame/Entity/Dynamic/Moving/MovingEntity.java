@@ -1,10 +1,11 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
 import BombermanGame.Entity.Dynamic.DynamicEntity;
+import BombermanGame.Entity.Entity;
 import javafx.scene.image.Image;
 
 public abstract class MovingEntity extends DynamicEntity {
-    protected DIRECTION direction = DIRECTION.DOWN;
+    protected DIRECTION direction;
     protected MOVING_ENTITY_ACTION action;
     protected int speed;
 
@@ -32,15 +33,10 @@ public abstract class MovingEntity extends DynamicEntity {
         this.speed = speed;
     }
 
-    protected void setDefaultSpecifications(DIRECTION direction, MOVING_ENTITY_ACTION action, int speed) {
-        this.direction = direction;
-        this.action = action;
-        this.speed = speed;
-    }
-
     protected MovingEntity() {
         super();
     }
+    protected boolean isDead = false;
     public MovingEntity(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
     }
@@ -48,4 +44,8 @@ public abstract class MovingEntity extends DynamicEntity {
     public MovingEntity(int x, int y) {
         super(x, y);
     }
+
+    public abstract void update();
+
+    public abstract void collide(Entity entity);
 }

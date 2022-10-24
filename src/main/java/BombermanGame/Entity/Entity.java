@@ -1,5 +1,6 @@
 package BombermanGame.Entity;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import BombermanGame.Sprite.*;
@@ -9,11 +10,7 @@ import java.io.FileInputStream;
 import static java.lang.Character.isUpperCase;
 
 public abstract class Entity {
-    //Tọa độ X tính từ góc trái trên trong Canvas
-    protected int x;
-
-    //Tọa độ Y tính từ góc trái trên trong Canvas
-    protected int y;
+    protected Position position;
 
     protected Image img;
 
@@ -21,6 +18,21 @@ public abstract class Entity {
 
     }
 
+    public int getX() {
+        return position.getX();
+    }
+
+    public int getY() {
+        return position.getY();
+    }
+
+    public void setX(int x) {
+        position.setX(x);
+    }
+
+    public void setY(int y) {
+        position.setY(y);
+    }
     public Image getImg() {
         return img;
     }
@@ -31,48 +43,42 @@ public abstract class Entity {
 
     //Khởi tạo đối tượng, chuyển từ tọa độ đơn vị sang tọa độ trong canvas
     public Entity(int xUnit, int yUnit, Image img) {
-        this.x = xUnit * Sprite.SCALED_SIZE;
-        this.y = yUnit * Sprite.SCALED_SIZE;
+        this.position = new Position(xUnit * Sprite.SCALED_SIZE, yUnit * Sprite.SCALED_SIZE);
         this.img = img;
     }
 
     public Entity(int x, int y) {
-        this.x = x * Sprite.SCALED_SIZE;
-        this.y = y * Sprite.SCALED_SIZE;
+        this.position = new Position(x * Sprite.SCALED_SIZE, y * Sprite.SCALED_SIZE);
         String className = this.getClass().getSimpleName();
         className = className.toLowerCase();
         try {
             this.img = Sprite.getFxImage(className + ".png");
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Failed to load " + className);
         }
     }
 
-    public int getX() {
-        return x;
+    public Rectangle2D getBoundary() {
+        return new Rectangle2D(position.getX(), position.getY(), Sprite.SCALED_SIZE, Sprite.SCALED_SIZE);
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+    public boolean isColliding(Entity entity) {
+        if(this == entity)
+            return false;
+        return this.getBoundary().intersects(entity.getBoundary());
     }
 
     public void render(GraphicsContext gc) {
-        gc.drawImage(img, x, y);
+        gc.drawImage(img, position.getX(), position.getY());
     }
-
     public String getEntityName(boolean toLowerCase) {
         if (toLowerCase)
             return this.getClass().getSimpleName().toLowerCase();
         return this.getClass().getSimpleName();
     }
     public abstract void update();
+
+    // Collision
+    public abstract void collide(Entity entity);
 }

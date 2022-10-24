@@ -2,8 +2,7 @@ package BombermanGame;
 
 import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
-import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
-import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Balloom;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
@@ -11,25 +10,17 @@ import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.KeyEventHandler.KeyEventHandler;
 import BombermanGame.KeyEventHandler.KeyEventHandlerImpl;
-import BombermanGame.KeyEventHandler.KeyEventListener;
-import BombermanGame.Map.Map;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class BombermanGame extends Application {
     public static final int WIDTH = 31;
@@ -42,7 +33,6 @@ public class BombermanGame extends Application {
 
     private Group root;
     private Scene scene;
-
     private Canvas canvas;
     private GraphicsContext gc;
     KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
@@ -82,34 +72,57 @@ public class BombermanGame extends Application {
                                 object = new Wall(j, i);
                                 break;
                             case '*':
-                                object = new Bomb(j, i);
+                                object = new Brick(j, i);
+                                break;
+                            case 'p':
+                                object = new Bomber(j, i);
+                                break;
+                            case '1':
+                                object = new Balloom(j, i);
                                 break;
                             default:
                                 object = new Grass(j, i);
                                 break;
-                            /**default:
-                                object = new Bomber(j, i, Sprite.player_right.getFxImage());
-                                break;*/
                         }
                         addEntity(object);
                     }
                 }
-                addEntity(bomber = new Bomber(1, 1, Sprite.player_right.getFxImage()));
             } catch (FileNotFoundException ex) {
             throw new RuntimeException(ex);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
-
     private void loadEventHandler() {
         keyEventHandler.init(scene);
         keyEventHandler.registerEvent(bomber);
+    }
+    private void checkCollision() {
+        for(Entity entity1 : dynamicEntities) {
+            for(Entity entity2 : dynamicEntities) {
+                if(handleCollision(entity1, entity2))
+                    break;
+            }
+            for(Entity entity2 : stillEntities) {
+                if(handleCollision(entity1, entity2))
+                    break;
+            }
+        }
+    }
+
+    private boolean handleCollision(Entity entity1, Entity entity2) {
+        if(entity1.isColliding(entity2)) {
+            entity1.collide(entity2);
+            entity2.collide(entity1);
+            return true;
+        }
+        return false;
     }
     private void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         stillEntities.forEach(g -> g.render(gc));
         dynamicEntities.forEach(g -> g.render(gc));
+        bomber.render(gc);
     }
 
     private void update() {
@@ -132,8 +145,9 @@ public class BombermanGame extends Application {
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
-                render();
                 update();
+                checkCollision();
+                render();
             }
         };
         timer.start();

@@ -3,6 +3,10 @@ package BombermanGame.Entity.Dynamic.Moving;
 import BombermanGame.KeyEventHandler.KeyEventListener;
 import javafx.event.Event;
 import javafx.event.EventType;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
+import BombermanGame.Entity.Dynamic.NotMoving.Brick;
+import BombermanGame.Entity.Entity;
+import BombermanGame.Entity.Still.Wall;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -33,9 +37,19 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     private Bomber() {
         super();
     }
+
+    @Override
+    protected void setDefaultSpecifications(Object... specifications) {
+        direction = (DIRECTION) specifications[0];
+        action = (MOVING_ENTITY_ACTION) specifications[1];
+        speed = (int) specifications[2];
+        animation.load(this);
+    }
+
     public Bomber(int x, int y) {
         super(x, y);
         setDefaultSpecifications(DEFAULT_DIRECTION, DEFAULT_ACTION, DEFAULT_SPEED);
+        animation.load(this);
     }
 
     public Bomber(int xUnit, int yUnit, Image img) {
@@ -86,6 +100,37 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             action = MOVING_ENTITY_ACTION.MOVING;
             this.speed = DEFAULT_SPEED;
             changeXYByDirection();
+        }
+    }
+
+    @Override
+    public void collide(Entity entity) {
+        if(entity instanceof Wall)
+            collide((Wall) entity);
+        else if(entity instanceof Brick)
+            collide((Brick) entity);
+        else if(entity instanceof Enemy)
+            collide((Enemy) entity);
+    }
+
+    protected void collide(Wall wall) {
+        if(last != null) {
+            position = last;
+        }
+        last = null;
+    }
+
+    protected void collide(Brick brick) {
+        if(last != null) {
+            position = last;
+        }
+        last = null;
+    }
+
+    protected void collide(Enemy enemy) {
+        if(!isDead) {
+            isDead = true;
+            speed = 0;
         }
     }
 }

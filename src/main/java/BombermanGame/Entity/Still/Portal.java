@@ -1,5 +1,6 @@
 package BombermanGame.Entity.Still;
 
+import BombermanGame.Entity.Entity;
 import javafx.scene.image.Image;
 
 public class Portal extends StillEntity {
@@ -16,4 +17,10 @@ public class Portal extends StillEntity {
     public void update() {
 
     }
+
+    @Override
+    public void collide(Entity entity) {
+
+    }
+
 }

@@ -75,7 +75,7 @@ public class Animation {
     public Image getCurrentImage() {
         if (entity instanceof NotMovingEntity) {
             return getCurrentImage(normal);
-        } else {
+        } else if (entity instanceof MovingEntity) {
             MovingEntity tEntity = (MovingEntity) entity;
             switch (tEntity.getAction()) {
                 case DEAD:
@@ -88,5 +88,6 @@ public class Animation {
                     return getCurrentImage(directionMoves[entityDirection.getValue()]);
             }
         }
+        return null;
     }
 }
