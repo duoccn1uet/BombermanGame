@@ -17,8 +17,8 @@ import java.util.ArrayList;
 
 public class Map {
 
-    private static int width = 20;
-    private static int height = 15;
+    private static int width;
+    private static int height;
 
     public static int getWidth() {
         return width;

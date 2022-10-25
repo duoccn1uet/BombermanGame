@@ -3,8 +3,7 @@ package BombermanGame;
 import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Balloom;
-import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
-import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Oneal;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
@@ -12,6 +11,9 @@ import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.KeyEventHandler.KeyEventHandler;
 import BombermanGame.KeyEventHandler.KeyEventHandlerImpl;
+import BombermanGame.Menu.Screen.GameOver;
+import BombermanGame.Menu.Screen.Menu;
+import BombermanGame.Menu.Screen.Pause;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -19,25 +21,31 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
 
 public class BombermanGame extends Application {
-    public static final int WIDTH = 31;
-    public static final int HEIGHT = 13;
+    public static int WIDTH = 25;
+    public static int HEIGHT = 15;
     private int level = 1;
     private String path;
     private ArrayList<Entity> dynamicEntities = new ArrayList<>();
     private ArrayList<Entity> stillEntities = new ArrayList<>();
     private Bomber bomber;/// = new Bomber();
-
     private Group root;
     private Scene scene;
-
     private Canvas canvas;
     private GraphicsContext gc;
+
+    // screen
+    private Menu menu = new Menu();
+    private Pause pause = new Pause();
+    private GameOver gameOver = new GameOver();
+    public static GAME_STATUS gameStatus = GAME_STATUS.MENU;
+    // handler
     KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
 
     public void runGame(String[] args) {
@@ -54,13 +62,28 @@ public class BombermanGame extends Application {
         }
     }
 
-    private void loadMap() {
+    private void loadMap(int level) {
         try {
             File directory = new File(".");
             System.out.println();
             path = directory.getAbsolutePath() + "/src/main/resources/Map/level_" + level + ".m";
             BufferedReader mapReader = new BufferedReader(new FileReader(new File(path)));
             mapReader.readLine();
+
+//            String tmp = mapReader.readLine();
+//            HEIGHT = 0;
+//            WIDTH = 0;
+//            for(int i = 0, flag = 0; i < tmp.length(); i ++) {
+//                if(tmp.charAt(i) == ' ')
+//                    flag = 1;
+//                else if(flag == 0)
+//                    HEIGHT = HEIGHT * 10 + (tmp.charAt(i) - '0');
+//                else
+//                    WIDTH = WIDTH * 10 + (tmp.charAt(i) - '0');
+//            }
+
+            System.out.println(HEIGHT + ", " + WIDTH);
+
             for (int i = 1; i < HEIGHT-1; ++i)
                 for (int j = 1; j < WIDTH-1; ++j)
                     addEntity(new Grass(j, i));
@@ -82,6 +105,9 @@ public class BombermanGame extends Application {
                                 break;
                             case '1':
                                 object = new Balloom(j, i);
+                                break;
+                            case '2':
+                                object = new Oneal(j, i);
                                 break;
                             default:
                                 object = new Grass(j, i);
@@ -132,14 +158,46 @@ public class BombermanGame extends Application {
 
     private void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        stillEntities.forEach(g -> g.render(gc));
-        dynamicEntities.forEach(g -> g.render(gc));
-        bomber.render(gc);
+        switch (gameStatus) {
+            case MENU:
+                menu.render(gc);
+                break;
+            case RUNNING:
+                stillEntities.forEach(g -> g.render(gc));
+                dynamicEntities.forEach(g -> g.render(gc));
+                bomber.render(gc);
+                break;
+            case PAUSED:
+                stillEntities.forEach(g -> g.render(gc));
+                dynamicEntities.forEach(g -> g.render(gc));
+                bomber.render(gc);
+                pause.render(gc);
+                break;
+            case GAME_OVER:
+                stillEntities.forEach(g -> g.render(gc));
+                dynamicEntities.forEach(g -> g.render(gc));
+                bomber.render(gc);
+                gameOver.render(gc);
+                break;
+        }
     }
 
     private void update() {
-        stillEntities.forEach(g -> g.update());
-        dynamicEntities.forEach(g -> g.update());
+        switch (gameStatus) {
+            case MENU:
+                menu.update();
+                break;
+            case RUNNING:
+                stillEntities.forEach(Entity::update);
+                dynamicEntities.forEach(Entity::update);
+                break;
+            case PAUSED:
+                pause.update();
+                break;
+            case GAME_OVER:
+                gameOver.update();
+                break;
+        }
     }
     @Override
     public void start(Stage stage) throws Exception {
@@ -149,9 +207,10 @@ public class BombermanGame extends Application {
         root = new Group();
         root.getChildren().add(canvas);
         scene = new Scene(root);
+        stage.setTitle("Bomberman");
         stage.setScene(scene);
 
-        loadMap();
+        loadMap(level);
         loadEventHandler();
 
         AnimationTimer timer = new AnimationTimer() {
