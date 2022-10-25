@@ -1,5 +1,6 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
+import BombermanGame.Entity.Position;
 import BombermanGame.KeyEventHandler.KeyEventListener;
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -75,6 +76,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     private void changeXYByDirection() {
         setX(getX() + speed * changeX[direction.getValue()]);
         setY(getY() + speed * changeY[direction.getValue()]);
+        position.setX(getX + speed)
     }
     @Override
     public void notify(KeyEvent keyEvent) {
