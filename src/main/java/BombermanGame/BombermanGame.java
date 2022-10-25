@@ -12,25 +12,17 @@ import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.KeyEventHandler.KeyEventHandler;
 import BombermanGame.KeyEventHandler.KeyEventHandlerImpl;
-import BombermanGame.KeyEventHandler.KeyEventListener;
-import BombermanGame.Map.Map;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class BombermanGame extends Application {
     public static final int WIDTH = 31;
@@ -86,10 +78,10 @@ public class BombermanGame extends Application {
                                 object = new Brick(j, i);
                                 break;
                             case 'p':
-                                object = new Bomber(j, i, Sprite.player_right.getFxImage());
+                                object = new Bomber(j, i);
                                 break;
                             case '1':
-                                object = new Balloom(j, i, Sprite.balloom_right1.getFxImage());
+                                object = new Balloom(j, i);
                                 break;
                             default:
                                 object = new Grass(j, i);
@@ -98,7 +90,6 @@ public class BombermanGame extends Application {
                         addEntity(object);
                     }
                 }
-                addEntity(bomber = new Bomber(1, 1, Sprite.player_right.getFxImage()));
             } catch (FileNotFoundException ex) {
             throw new RuntimeException(ex);
         } catch (IOException ex) {
@@ -143,6 +134,7 @@ public class BombermanGame extends Application {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         stillEntities.forEach(g -> g.render(gc));
         dynamicEntities.forEach(g -> g.render(gc));
+        bomber.render(gc);
     }
 
     private void update() {

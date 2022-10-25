@@ -9,10 +9,15 @@ public class Bomb extends NotMovingEntity {
         super(xUnit, yUnit, img);
     }
 
+
     public Bomb(int x, int y) {
         super(x, y);
     }
 
+    @Override
+    protected void setDefaultSpecifications(Object... specifications) {
+
+    }
     @Override
     public void collide(Entity entity) {
 

@@ -18,6 +18,21 @@ public abstract class Entity {
 
     }
 
+    public int getX() {
+        return position.getX();
+    }
+
+    public int getY() {
+        return position.getY();
+    }
+
+    public void setX(int x) {
+        position.setX(x);
+    }
+
+    public void setY(int y) {
+        position.setY(y);
+    }
     public Image getImg() {
         return img;
     }
@@ -40,7 +55,7 @@ public abstract class Entity {
             this.img = Sprite.getFxImage(className + ".png");
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Failed to load " + className);
         }
     }
 

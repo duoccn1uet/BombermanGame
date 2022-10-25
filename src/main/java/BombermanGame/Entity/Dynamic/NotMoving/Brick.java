@@ -9,6 +9,11 @@ public class Brick extends NotMovingEntity {
         super(xUnit, yUnit, img);
     }
 
+    @Override
+    protected void setDefaultSpecifications(Object... specifications) {
+
+    }
+
     public Brick(int x, int y) {
         super(x, y);
     }

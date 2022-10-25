@@ -34,15 +34,10 @@ public abstract class MovingEntity extends DynamicEntity {
         this.speed = speed;
     }
 
-    protected void setDefaultSpecifications(DIRECTION direction, MOVING_ENTITY_ACTION action, int speed) {
-        this.direction = direction;
-        this.action = action;
-        this.speed = speed;
-    }
-
     protected MovingEntity() {
         super();
     }
+    protected boolean isDead = false;
     public MovingEntity(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
     }

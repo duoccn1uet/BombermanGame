@@ -1,6 +1,7 @@
 package BombermanGame.Entity.Dynamic;
 
-import BombermanGame.Entity.Direction;
+import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Position;
 import javafx.animation.AnimationTimer;
@@ -15,21 +16,17 @@ public abstract class DynamicEntity extends Entity {
 
     public DynamicEntity(int x, int y) {
         super(x, y);
-        last = new Position(x, y);
-        direction = Direction.R;
-        animation.load(this);
     }
 
     public DynamicEntity(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
-        last = new Position(xUnit, yUnit);
-        direction = Direction.R;
-        animation.load(this);
     }
 
     protected DynamicEntity() {
         super();
     }
+
+    protected abstract void setDefaultSpecifications(Object... specifications);
 
     public abstract void update();
 }
