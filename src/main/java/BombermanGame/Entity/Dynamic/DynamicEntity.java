@@ -11,7 +11,7 @@ public abstract class DynamicEntity extends Entity {
     protected Animation animation = new Animation();
 
     protected Position last;
-    protected Direction direction;
+    protected DIRECTION direction;
     protected int speed;
 
     public DynamicEntity(int x, int y) {

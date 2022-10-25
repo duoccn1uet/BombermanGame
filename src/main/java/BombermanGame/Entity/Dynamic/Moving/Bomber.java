@@ -1,6 +1,5 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
-import BombermanGame.Entity.Direction;
 import BombermanGame.Entity.Position;
 import BombermanGame.KeyEventHandler.KeyEventListener;
 import javafx.event.Event;
