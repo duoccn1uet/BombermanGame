@@ -1,5 +1,7 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
+import BombermanGame.BombermanGame;
+import BombermanGame.GAME_STATUS;
 import BombermanGame.Entity.Position;
 import BombermanGame.KeyEventHandler.KeyEventListener;
 import BombermanGame.Sprite.Sprite;
@@ -162,6 +164,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         if(!isDead) {
             isDead = true;
             speed = 0;
+            BombermanGame.gameStatus = GAME_STATUS.GAME_OVER;
         }
     }
 }

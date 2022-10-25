@@ -6,6 +6,7 @@ import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Position;
 import BombermanGame.Entity.Still.Wall;
+import BombermanGame.Sprite.Sprite;
 import javafx.scene.image.Image;
 
 import java.util.Random;
@@ -22,6 +23,12 @@ public abstract class Enemy extends MovingEntity {
 
     public Position move() {
         Position newPosition;
+        if(position.getX() % 64 == 32 && position.getY() % 64 == 32) {
+            Random random = new Random();
+            int rnd = random.nextInt(100);
+            if(rnd < 30)
+                changeDirection();
+        }
         switch (direction) {
             case UP:
                 newPosition = position.up(speed);
