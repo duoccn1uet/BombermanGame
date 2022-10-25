@@ -2,9 +2,7 @@ package BombermanGame.Entity.Dynamic.Moving;
 
 import BombermanGame.Entity.Position;
 import BombermanGame.KeyEventHandler.KeyEventListener;
-import javafx.event.Event;
-import javafx.event.EventType;
-import BombermanGame.KeyEventHandler.KeyEventListener;
+import BombermanGame.Sprite.Sprite;
 import javafx.event.Event;
 import javafx.event.EventType;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
@@ -22,25 +20,11 @@ import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCode.S;
 
 public class Bomber extends MovingEntity implements KeyEventListener {
-    private static final int[] changeX = {0, 1, 0, -1};
-    private static final int[] changeY = {-1, 0, 1, 0};
-
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
-    public static final int DEFAULT_SPEED = 2;
-    /**
-     * A: Move left;
-     * D: Move right;
-     * W: Move up;
-     * S: Move down;
-     * SPACE: Bomb;
-     */
+    public static final int DEFAULT_SPEED = 1;
     private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE);
     private KeyCode currentlyPressed;
-
-    private Bomber() {
-        super();
-    }
 
     @Override
     protected void setDefaultSpecifications(Object... specifications) {
@@ -69,6 +53,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             this.last = new Position(position.getX(), position.getY());
             position = move(position, direction);
         }
+
+//        System.out.println(position.getX() + "," + position.getY());
     }
 
     @Override
@@ -95,16 +81,39 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         Position newPosition;
         switch (direction) {
             case UP:
-                newPosition = new Position(position.getX(), position.getY() - speed);
+                if(position.getX() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX(), position.getY() - speed);
+                else if(position.getX() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX() - 1, position.getY());
+                else
+                    newPosition = new Position(position.getX() + 1, position.getY());
                 break;
             case DOWN:
-                newPosition = new Position(position.getX(), position.getY() + speed);
+                if(position.getX() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX(), position.getY() + speed);
+                else if(position.getX() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX() - 1, position.getY());
+                else
+                    newPosition = new Position(position.getX() + 1, position.getY());
                 break;
             case LEFT:
-                newPosition = new Position(position.getX() - speed, position.getY());
+                if(position.getY() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX() - speed, position.getY());
+                else if(position.getY() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX(), position.getY() - 1);
+                else
+                    newPosition = new Position(position.getX(), position.getY() + 1);
+                break;
+            case RIGHT:
+                if(position.getY() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX() + speed, position.getY());
+                else if(position.getY() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX(), position.getY() - 1);
+                else
+                    newPosition = new Position(position.getX(), position.getY() + 1);
                 break;
             default:
-                newPosition = new Position(position.getX() + speed, position.getY());
+                newPosition = position;
                 break;
         }
         return newPosition;
