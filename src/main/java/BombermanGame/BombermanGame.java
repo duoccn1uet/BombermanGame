@@ -121,6 +121,13 @@ public class BombermanGame extends Application {
                     break;
             }
         }
+
+        for(Entity entity1 : stillEntities) {
+            for(Entity entity2 : dynamicEntities) {
+                if(handleCollision(entity1, entity2))
+                    break;
+            }
+        }
     }
 
     private boolean handleCollision(Entity entity1, Entity entity2) {

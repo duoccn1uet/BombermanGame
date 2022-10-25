@@ -1,6 +1,7 @@
 package BombermanGame.Entity.Dynamic.Moving.Enemy;
 
 import BombermanGame.Entity.Direction;
+import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
@@ -23,13 +24,13 @@ public class Enemy extends MovingEntity {
     public Position move() {
         Position newPosition;
         switch (direction) {
-            case U:
+            case UP:
                 newPosition = position.up(speed);
                 break;
-            case D:
+            case DOWN:
                 newPosition = position.down(speed);
                 break;
-            case L:
+            case LEFT:
                 newPosition = position.left(speed);
                 break;
             default:
@@ -48,13 +49,13 @@ public class Enemy extends MovingEntity {
     }
 
     public void changeDirection() {
-        Direction tmp;
+        DIRECTION tmp;
         direction = (tmp = randomDirection()) == direction ? randomDirection() : tmp;
     }
 
-    public Direction randomDirection() {
+    public DIRECTION randomDirection() {
         Random random = new Random();
-        return Direction.values()[random.nextInt(Direction.values().length)];
+        return DIRECTION.values()[random.nextInt(DIRECTION.values().length)];
     }
 
     public void moveToPos(Position newPosition) {

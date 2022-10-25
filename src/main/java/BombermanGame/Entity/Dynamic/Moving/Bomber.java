@@ -1,5 +1,6 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
+import BombermanGame.Entity.Direction;
 import BombermanGame.Entity.Position;
 import BombermanGame.KeyEventHandler.KeyEventListener;
 import javafx.event.Event;
@@ -24,7 +25,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
 
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
-    public static final int DEFAULT_SPEED = 3;
+    public static final int DEFAULT_SPEED = 2;
     /**
      * A: Move left;
      * D: Move right;
@@ -51,6 +52,11 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     @Override
     public void update() {
         img = animation.getCurrentImage();
+
+        if(!isDead && action == MOVING_ENTITY_ACTION.MOVING) {
+            this.last = new Position(position.getX(), position.getY());
+            position = move(position, direction);
+        }
     }
 
     @Override
@@ -73,10 +79,23 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         }
     }
 
-    private void changeXYByDirection() {
-        setX(getX() + speed * changeX[direction.getValue()]);
-        setY(getY() + speed * changeY[direction.getValue()]);
-        position.setX(getX + speed)
+    public Position move(Position position, DIRECTION direction) {
+        Position newPosition;
+        switch (direction) {
+            case UP:
+                newPosition = new Position(position.getX(), position.getY() - speed);
+                break;
+            case DOWN:
+                newPosition = new Position(position.getX(), position.getY() + speed);
+                break;
+            case LEFT:
+                newPosition = new Position(position.getX() - speed, position.getY());
+                break;
+            default:
+                newPosition = new Position(position.getX() + speed, position.getY());
+                break;
+        }
+        return newPosition;
     }
     @Override
     public void notify(KeyEvent keyEvent) {
@@ -91,7 +110,6 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             this.direction = getDirection(keyEvent);
             action = MOVING_ENTITY_ACTION.MOVING;
             this.speed = DEFAULT_SPEED;
-            changeXYByDirection();
         }
     }
 
