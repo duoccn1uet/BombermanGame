@@ -1,6 +1,5 @@
 package BombermanGame.Entity.Dynamic.Moving.Enemy;
 
-import BombermanGame.Entity.Direction;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
@@ -11,7 +10,7 @@ import javafx.scene.image.Image;
 
 import java.util.Random;
 
-public class Enemy extends MovingEntity {
+public abstract class Enemy extends MovingEntity {
 
     public Enemy(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);

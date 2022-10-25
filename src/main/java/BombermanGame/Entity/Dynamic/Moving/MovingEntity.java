@@ -37,7 +37,6 @@ public abstract class MovingEntity extends DynamicEntity {
     protected MovingEntity() {
         super();
     }
-    protected boolean isDead = false;
     public MovingEntity(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
     }
