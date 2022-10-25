@@ -1,6 +1,7 @@
-package BombermanGame.Menu;
+package BombermanGame.Menu.Screen;
 
 import BombermanGame.Entity.Position;
+import BombermanGame.Menu.ImageComponent;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
