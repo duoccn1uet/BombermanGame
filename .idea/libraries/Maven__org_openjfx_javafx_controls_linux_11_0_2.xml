@@ -1,6 +1,8 @@
 <component name="libraryTable">
-  <library name="Maven: org.openjfx:javafx-controls:win:11.0.2">
-    <CLASSES />
+  <library name="Maven: org.openjfx:javafx-controls:linux:11.0.2">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/11.0.2/javafx-controls-11.0.2-linux.jar!/" />
+    </CLASSES>
     <JAVADOC>
       <root url="jar://$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/11.0.2/javafx-controls-11.0.2-javadoc.jar!/" />
     </JAVADOC>

@@ -1,6 +1,8 @@
 package BombermanGame.Menu.Screen;
 
+import BombermanGame.BombermanGame;
 import BombermanGame.Entity.Position;
+import BombermanGame.GAME_STATUS;
 import BombermanGame.Menu.GameButton;
 import BombermanGame.Menu.ImageComponent;
 import BombermanGame.MouseEventHandler.MouseEventListener;
@@ -18,7 +20,7 @@ public class Menu implements MouseEventListener {
     public Menu() {
         this.position = new Position(0, 0);
         this.image = ImageComponent.getFxImage("menu.png");
-        this.play = new GameButton(300, 350, "play.png");
+        this.play = new GameButton(300, 350, "play.png", "play_hovered.png");
     }
 
     public void update() {
@@ -34,7 +36,11 @@ public class Menu implements MouseEventListener {
     public void notify(MouseEvent mouseEvent) {
         EventType<? extends Event> eventType = mouseEvent.getEventType();
         if(MouseEvent.MOUSE_MOVED.equals(eventType)) {
-
+            play.hovered(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()));
+        } else if(MouseEvent.MOUSE_CLICKED.equals(eventType)) {
+            if(play.clicked(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()))) {
+                BombermanGame.setGameStatus(GAME_STATUS.RUNNING);
+            }
         }
     }
 }

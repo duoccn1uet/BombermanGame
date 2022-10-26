@@ -46,7 +46,8 @@ public class BombermanGame extends Application {
     private Menu menu = new Menu();
     private Pause pause = new Pause();
     private GameOver gameOver = new GameOver();
-    public static GAME_STATUS gameStatus = GAME_STATUS.RUNNING;
+    public static GAME_STATUS gameStatus = GAME_STATUS.MENU;
+
     // handler
     KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
     MouseEventHandler mouseEventHandler = new MouseEventHandlerImpl();
@@ -131,7 +132,11 @@ public class BombermanGame extends Application {
         keyEventHandler.registerEvent(bomber);
 
         mouseEventHandler.init(scene);
+        mouseEventHandler.registerEvent(menu);
+        mouseEventHandler.registerEvent(pause);
+        mouseEventHandler.registerEvent(gameOver);
     }
+
     private void checkCollision() {
         for(Entity entity1 : dynamicEntities) {
             for(Entity entity2 : dynamicEntities) {
@@ -204,6 +209,11 @@ public class BombermanGame extends Application {
                 break;
         }
     }
+
+    public static void setGameStatus(GAME_STATUS gameStatus) {
+        BombermanGame.gameStatus = gameStatus;
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);

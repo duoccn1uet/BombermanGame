@@ -25,7 +25,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
     public static final int DEFAULT_SPEED = 1;
-    private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE);
+    private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE, ESCAPE);
     private KeyCode currentlyPressed;
 
     @Override
@@ -164,7 +164,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         if(!isDead) {
             isDead = true;
             speed = 0;
-            BombermanGame.gameStatus = GAME_STATUS.GAME_OVER;
+            BombermanGame.setGameStatus(GAME_STATUS.GAME_OVER);
         }
     }
 }
