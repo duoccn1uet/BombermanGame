@@ -4,11 +4,14 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 
+import java.util.List;
+
 public class MouseEventHandlerImpl implements MouseEventHandler, EventHandler<MouseEvent> {
     @Override
     public void init(Scene scene) {
-        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, this);
-        scene.addEventFilter(MouseEvent.MOUSE_RELEASED, this);
+        scene.setOnMouseMoved(this);
+        scene.setOnMousePressed(this);
+        scene.setOnMouseReleased(this);
     }
 
     @Override

@@ -14,6 +14,8 @@ import BombermanGame.KeyEventHandler.KeyEventHandlerImpl;
 import BombermanGame.Menu.Screen.GameOver;
 import BombermanGame.Menu.Screen.Menu;
 import BombermanGame.Menu.Screen.Pause;
+import BombermanGame.MouseEventHandler.MouseEventHandler;
+import BombermanGame.MouseEventHandler.MouseEventHandlerImpl;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -44,9 +46,10 @@ public class BombermanGame extends Application {
     private Menu menu = new Menu();
     private Pause pause = new Pause();
     private GameOver gameOver = new GameOver();
-    public static GAME_STATUS gameStatus = GAME_STATUS.MENU;
+    public static GAME_STATUS gameStatus = GAME_STATUS.RUNNING;
     // handler
     KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
+    MouseEventHandler mouseEventHandler = new MouseEventHandlerImpl();
 
     public void runGame(String[] args) {
         launch(args);
@@ -126,6 +129,8 @@ public class BombermanGame extends Application {
     private void loadEventHandler() {
         keyEventHandler.init(scene);
         keyEventHandler.registerEvent(bomber);
+
+        mouseEventHandler.init(scene);
     }
     private void checkCollision() {
         for(Entity entity1 : dynamicEntities) {
