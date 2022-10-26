@@ -33,4 +33,9 @@ public class Oneal extends Enemy {
     public void collide(Entity entity) {
 
     }
+
+    @Override
+    public void update() {
+        super.update();
+    }
 }

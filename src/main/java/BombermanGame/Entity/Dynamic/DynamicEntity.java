@@ -13,17 +13,22 @@ public abstract class DynamicEntity extends Entity {
 
     public DynamicEntity(int x, int y) {
         super(x, y);
+        animation.load(this);
     }
 
     public DynamicEntity(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
+        animation.load(this);
     }
 
     protected DynamicEntity() {
         super();
+        animation.load(this);
     }
 
     protected abstract void setDefaultSpecifications(Object... specifications);
 
-    public abstract void update();
+    public void update() {
+        img = animation.getCurrentImage();
+    }
 }

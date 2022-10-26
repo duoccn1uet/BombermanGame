@@ -43,13 +43,11 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         direction = (DIRECTION) specifications[0];
         action = (MOVING_ENTITY_ACTION) specifications[1];
         speed = (int) specifications[2];
-        animation.load(this);
     }
 
     public Bomber(int x, int y) {
         super(x, y);
         setDefaultSpecifications(DEFAULT_DIRECTION, DEFAULT_ACTION, DEFAULT_SPEED);
-        animation.load(this);
     }
 
     public Bomber(int xUnit, int yUnit, Image img) {
@@ -59,7 +57,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
 
     @Override
     public void update() {
-        img = animation.getCurrentImage();
+        super.update();
     }
 
     @Override
@@ -78,7 +76,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             case D:
                 return DIRECTION.RIGHT;
             default:
-                throw new IllegalArgumentException("Bomber has not direction key event" + keyEvent.getCode());
+                throw new IllegalArgumentException("Bomber has not direction key event " + keyEvent.getCode());
         }
     }
 

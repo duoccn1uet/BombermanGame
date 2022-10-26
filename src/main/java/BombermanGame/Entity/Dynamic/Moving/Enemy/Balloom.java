@@ -12,7 +12,7 @@ import java.util.Random;
 public class Balloom extends Enemy {
 
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
-    public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
+    public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.MOVING;
     public static final int DEFAULT_SPEED = 1;
 
     @Override

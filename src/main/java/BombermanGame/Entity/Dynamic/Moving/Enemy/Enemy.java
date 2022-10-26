@@ -1,5 +1,6 @@
 package BombermanGame.Entity.Dynamic.Moving.Enemy;
 
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Position;
 import javafx.scene.image.Image;
@@ -37,7 +38,10 @@ public abstract class Enemy extends MovingEntity {
     public void update() {
         if(isDead)
             return;
-        last = new Position(position.getX(), position.getY());
-        position = move();
+        if (this.getAction() == MOVING_ENTITY_ACTION.MOVING) {
+            last = new Position(position.getX(), position.getY());
+            position = move();
+        }
+        super.update();
     }
 }

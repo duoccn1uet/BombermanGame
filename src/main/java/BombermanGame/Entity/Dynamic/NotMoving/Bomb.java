@@ -23,4 +23,8 @@ public class Bomb extends NotMovingEntity {
 
     }
 
+    @Override
+    public void update() {
+        super.update();
+    }
 }

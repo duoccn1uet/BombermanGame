@@ -20,7 +20,7 @@ public class Brick extends NotMovingEntity {
 
     @Override
     public void update() {
-
+        super.update();
     }
 
     @Override

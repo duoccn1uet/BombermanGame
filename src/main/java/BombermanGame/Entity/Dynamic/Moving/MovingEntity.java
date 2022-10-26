@@ -45,7 +45,5 @@ public abstract class MovingEntity extends DynamicEntity {
         super(x, y);
     }
 
-    public abstract void update();
-
     public abstract void collide(Entity entity);
 }

@@ -24,6 +24,7 @@ public class Animation {
     private ArrayList<Image> normal = new ArrayList<>();
     private ArrayList<Image>[] directionMoves = new ArrayList[DIRECTION.size()];
     private ArrayList<Image> dead = new ArrayList<>();
+    private DIRECTION lastDirectionHasAnimation;
 
     Animation() {
         for (int i = 0; i < directionMoves.length; ++i)
@@ -37,17 +38,19 @@ public class Animation {
             } else break;
         }
     }
+
+    private void updatelastDirectionHasAnimation(DIRECTION direction) {
+        if (!directionMoves[direction.getValue()].isEmpty())
+            lastDirectionHasAnimation = direction;
+    }
     public void load(DynamicEntity entity) {
         try {
             this.entity = entity;
             if (entity instanceof MovingEntity) {
                 String entityName = entity.getClass().getSimpleName().toLowerCase();
-//                loadImageList(entityName, "up", upMove);
-//                loadImageList(entityName, "right", rightMove);
-//                loadImageList(entityName, "down", downMove);
-//                loadImageList(entityName, "left", leftMove);
                 for (DIRECTION direction : DIRECTION.values()) {
                     loadImageList(entityName, direction.name().toLowerCase(), directionMoves[direction.getValue()]);
+                    updatelastDirectionHasAnimation(direction);
                 }
                 loadImageList(entityName, "dead", dead);
             } else if (entity instanceof NotMovingEntity) {
@@ -85,6 +88,10 @@ public class Animation {
                     return directionMoves[entityDirection.getValue()].get(0);
                 default: /// Moving
                     entityDirection = tEntity.getDirection();
+                    if (directionMoves[entityDirection.getValue()].isEmpty()) {
+                        return getCurrentImage(directionMoves[lastDirectionHasAnimation.getValue()]);
+                    }
+                    lastDirectionHasAnimation = entityDirection;
                     return getCurrentImage(directionMoves[entityDirection.getValue()]);
             }
         }
