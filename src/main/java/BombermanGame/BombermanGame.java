@@ -16,6 +16,8 @@ import BombermanGame.Menu.ImageComponent;
 import BombermanGame.Menu.Screen.GameOver;
 import BombermanGame.Menu.Screen.Menu;
 import BombermanGame.Menu.Screen.Pause;
+import BombermanGame.MouseEventHandler.MouseEventHandler;
+import BombermanGame.MouseEventHandler.MouseEventHandlerImpl;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -57,8 +59,10 @@ public class BombermanGame extends Application {
     private Pause pause = new Pause();
     private GameOver gameOver = new GameOver();
     public static GAME_STATUS gameStatus = GAME_STATUS.RUNNING;
+
     // handler
     KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
+    MouseEventHandler mouseEventHandler = new MouseEventHandlerImpl();
 
     public void runGame(String[] args) {
         launch(args);
@@ -135,7 +139,13 @@ public class BombermanGame extends Application {
     private void loadEventHandler() {
         keyEventHandler.init(scene);
         keyEventHandler.registerEvent(bomber);
+
+        mouseEventHandler.init(scene);
+        mouseEventHandler.registerEvent(menu);
+        mouseEventHandler.registerEvent(pause);
+        mouseEventHandler.registerEvent(gameOver);
     }
+
     private void checkCollision() {
         for(Entity entity1 : dynamicEntities) {
             for(Entity entity2 : dynamicEntities) {
@@ -215,7 +225,6 @@ public class BombermanGame extends Application {
                 break;
         }
     }
-
     private static long startTimeStamp = 0;
     private static long currentTimeStamp = 0;
 
@@ -226,6 +235,10 @@ public class BombermanGame extends Application {
     public static long getTime() {
         return currentTimeStamp - startTimeStamp;
     }
+    public static void setGameStatus(GAME_STATUS gameStatus) {
+        BombermanGame.gameStatus = gameStatus;
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
