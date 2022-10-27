@@ -7,8 +7,6 @@ import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Wall;
 import javafx.scene.image.Image;
 
-import java.util.Random;
-
 public class Balloom extends Enemy {
 
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
@@ -30,16 +28,6 @@ public class Balloom extends Enemy {
     public Balloom(int x, int y) {
         super(x, y);
         setDefaultSpecifications(DEFAULT_DIRECTION, DEFAULT_ACTION, DEFAULT_SPEED);
-    }
-
-    public void changeDirection() {
-        DIRECTION tmp;
-        direction = (tmp = randomDirection()) == direction ? randomDirection() : tmp;
-    }
-
-    public DIRECTION randomDirection() {
-        Random random = new Random();
-        return DIRECTION.values()[random.nextInt(DIRECTION.size())];
     }
 
     @Override
@@ -68,4 +56,6 @@ public class Balloom extends Enemy {
         last = null;
         changeDirection();
     }
+
+
 }

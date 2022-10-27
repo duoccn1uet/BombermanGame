@@ -4,6 +4,7 @@ import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Position;
+import javafx.animation.AnimationTimer;
 import javafx.scene.image.Image;
 
 public abstract class DynamicEntity extends Entity {

@@ -1,42 +1,35 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
+import BombermanGame.BombermanGame;
+import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
+import BombermanGame.GAME_STATUS;
+import BombermanGame.Entity.Position;
 import BombermanGame.KeyEventHandler.KeyEventListener;
+import BombermanGame.Sprite.Sprite;
 import javafx.event.Event;
 import javafx.event.EventType;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Wall;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static javafx.scene.input.KeyCode.*;
 import static javafx.scene.input.KeyCode.S;
 
 public class Bomber extends MovingEntity implements KeyEventListener {
-    private static final int[] changeX = {0, 1, 0, -1};
-    private static final int[] changeY = {-1, 0, 1, 0};
-
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
-    public static final int DEFAULT_SPEED = 3;
-    /**
-     * A: Move left;
-     * D: Move right;
-     * W: Move up;
-     * S: Move down;
-     * SPACE: Bomb;
-     */
+    public static final int DEFAULT_SPEED = 1;
     private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE);
     private KeyCode currentlyPressed;
-
-    private Bomber() {
-        super();
-    }
+    private Queue<Bomb> bombQueue = new LinkedList<>();
+    private int maxSpawnedBomb = 1;
 
     @Override
     protected void setDefaultSpecifications(Object... specifications) {
@@ -58,6 +51,23 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     @Override
     public void update() {
         super.update();
+        while (!bombQueue.isEmpty() && bombQueue.peek().isVanished())
+            bombQueue.remove();
+        for (Bomb bomb : bombQueue)
+            bomb.update();
+        if(!isDead && action == MOVING_ENTITY_ACTION.MOVING) {
+            this.last = new Position(position.getX(), position.getY());
+            position = move(position, direction);
+        }
+    }
+
+    @Override
+    public void render(GraphicsContext gc) {
+        super.render(gc);
+        for (Bomb bomb : bombQueue) {
+            ///System.out.println("vl");
+            bomb.render(gc);
+        }
     }
 
     @Override
@@ -80,9 +90,46 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         }
     }
 
-    private void changeXYByDirection() {
-        setX(getX() + speed * changeX[direction.getValue()]);
-        setY(getY() + speed * changeY[direction.getValue()]);
+    public Position move(Position position, DIRECTION direction) {
+        Position newPosition;
+        switch (direction) {
+            case UP:
+                if(position.getX() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX(), position.getY() - speed);
+                else if(position.getX() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX() - 1, position.getY());
+                else
+                    newPosition = new Position(position.getX() + 1, position.getY());
+                break;
+            case DOWN:
+                if(position.getX() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX(), position.getY() + speed);
+                else if(position.getX() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX() - 1, position.getY());
+                else
+                    newPosition = new Position(position.getX() + 1, position.getY());
+                break;
+            case LEFT:
+                if(position.getY() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX() - speed, position.getY());
+                else if(position.getY() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX(), position.getY() - 1);
+                else
+                    newPosition = new Position(position.getX(), position.getY() + 1);
+                break;
+            case RIGHT:
+                if(position.getY() % Sprite.SCALED_SIZE == 0)
+                    newPosition = new Position(position.getX() + speed, position.getY());
+                else if(position.getY() % Sprite.SCALED_SIZE <= 16)
+                    newPosition = new Position(position.getX(), position.getY() - 1);
+                else
+                    newPosition = new Position(position.getX(), position.getY() + 1);
+                break;
+            default:
+                newPosition = position;
+                break;
+        }
+        return newPosition;
     }
     @Override
     public void notify(KeyEvent keyEvent) {
@@ -94,10 +141,17 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             }
         } else if (KeyEvent.KEY_PRESSED.equals(eventType)) {
             currentlyPressed = keyEvent.getCode();
-            this.direction = getDirection(keyEvent);
-            action = MOVING_ENTITY_ACTION.MOVING;
-            this.speed = DEFAULT_SPEED;
-            changeXYByDirection();
+            switch (currentlyPressed) {
+                case SPACE:
+                    if (bombQueue.size() < maxSpawnedBomb) {
+                        bombQueue.add(new Bomb(getBoardX(), getBoardY()));
+                    }
+                    break;
+                default:
+                    this.direction = getDirection(keyEvent);
+                    action = MOVING_ENTITY_ACTION.MOVING;
+                    this.speed = DEFAULT_SPEED;
+            }
         }
     }
 
@@ -129,6 +183,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         if(!isDead) {
             isDead = true;
             speed = 0;
+            BombermanGame.gameStatus = GAME_STATUS.GAME_OVER;
         }
     }
 }

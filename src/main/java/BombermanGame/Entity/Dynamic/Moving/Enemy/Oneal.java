@@ -2,7 +2,9 @@ package BombermanGame.Entity.Dynamic.Moving.Enemy;
 
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
+import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
+import BombermanGame.Entity.Still.Wall;
 import javafx.scene.image.Image;
 
 public class Oneal extends Enemy {
@@ -31,7 +33,24 @@ public class Oneal extends Enemy {
 
     @Override
     public void collide(Entity entity) {
+        if(entity instanceof Wall)
+            collide((Wall) entity);
+        if(entity instanceof Brick)
+            collide((Brick) entity);
+    }
 
+    protected void collide(Wall wall) {
+        if(last != null)
+            position = last;
+        last = null;
+        changeDirection();
+    }
+
+    protected void collide(Brick brick) {
+        if(last != null)
+            position = last;
+        last = null;
+        changeDirection();
     }
 
     @Override

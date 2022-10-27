@@ -1,5 +1,6 @@
 package BombermanGame.Entity;
 
+import BombermanGame.BombermanGame;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -18,6 +19,13 @@ public abstract class Entity {
 
     }
 
+    public int getBoardX() {
+        return getX() / Sprite.SCALED_SIZE;
+    }
+
+    public int getBoardY() {
+        return getY() / Sprite.SCALED_SIZE;
+    }
     public int getX() {
         return position.getX();
     }
@@ -72,6 +80,8 @@ public abstract class Entity {
     public void render(GraphicsContext gc) {
         gc.drawImage(img, position.getX(), position.getY());
     }
+
+
     public String getEntityName(boolean toLowerCase) {
         if (toLowerCase)
             return this.getClass().getSimpleName().toLowerCase();
