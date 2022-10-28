@@ -11,7 +11,7 @@ public enum DIRECTION {
     static {
         size = values().length;
     }
-    private DIRECTION(int value) {
+    DIRECTION(int value) {
         this.value = value;
     }
 

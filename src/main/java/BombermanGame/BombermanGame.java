@@ -4,6 +4,7 @@ import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Balloom;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Oneal;
+import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
 import BombermanGame.Entity.Entity;
@@ -30,25 +31,28 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class BombermanGame extends Application {
     public static int WIDTH = 25;
     public static int HEIGHT = 15;
+    public static Queue<Bomb> bombQueue = new LinkedList<>();
     private int level = 1;
     private String path;
-    private static ArrayList<Entity> dynamicEntities = new ArrayList<>();
-    private static ArrayList<Entity> stillEntities = new ArrayList<>();
+    private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
+    private static ArrayList<StillEntity> stillEntities = new ArrayList<>();
     private Bomber bomber;/// = new Bomber();
     private Group root;
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gc;
 
-    public static ArrayList<Entity> getDynamicEntities() {
+    public static ArrayList<DynamicEntity> getDynamicEntities() {
         return dynamicEntities;
     }
 
-    public static ArrayList<Entity> getStillEntities() {
+    public static ArrayList<StillEntity> getStillEntities() {
         return stillEntities;
     }
 
@@ -65,9 +69,9 @@ public class BombermanGame extends Application {
     }
     private void addEntity(Entity entity) {
         if (entity instanceof StillEntity) {
-            stillEntities.add(entity);
+            stillEntities.add((StillEntity) entity);
         } else if (entity instanceof DynamicEntity) {
-            dynamicEntities.add(entity);
+            dynamicEntities.add((DynamicEntity) entity);
             if (entity instanceof Bomber) {
                 bomber = (Bomber) entity;
             }
@@ -80,18 +84,6 @@ public class BombermanGame extends Application {
             path = directory.getAbsolutePath() + "/src/main/resources/Map/level_" + level + ".m";
             BufferedReader mapReader = new BufferedReader(new FileReader(new File(path)));
             mapReader.readLine();
-
-//            String tmp = mapReader.readLine();
-//            HEIGHT = 0;
-//            WIDTH = 0;
-//            for(int i = 0, flag = 0; i < tmp.length(); i ++) {
-//                if(tmp.charAt(i) == ' ')
-//                    flag = 1;
-//                else if(flag == 0)
-//                    HEIGHT = HEIGHT * 10 + (tmp.charAt(i) - '0');
-//                else
-//                    WIDTH = WIDTH * 10 + (tmp.charAt(i) - '0');
-//            }
 
             for (int i = 1; i < HEIGHT-1; ++i)
                 for (int j = 1; j < WIDTH-1; ++j)
@@ -125,9 +117,7 @@ public class BombermanGame extends Application {
                         addEntity(object);
                     }
                 }
-            } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
-        } catch (IOException ex) {
+            } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -173,8 +163,8 @@ public class BombermanGame extends Application {
                 break;
             case RUNNING:
                 stillEntities.forEach(g -> g.render(gc));
-                dynamicEntities.forEach(g -> g.render(gc));
                 bomber.render(gc);
+                dynamicEntities.forEach(g -> g.render(gc));
                 break;
             case PAUSED:
                 stillEntities.forEach(g -> g.render(gc));
@@ -199,11 +189,9 @@ public class BombermanGame extends Application {
             case RUNNING:
                 stillEntities.forEach(Entity::update);
                 for (int i = 0; i < dynamicEntities.size(); ++i) {
-                    Entity e = dynamicEntities.get(i);
-                    if (e instanceof NotMovingEntity) {
-                        if (((NotMovingEntity) e).isVanished())
-                            dynamicEntities.remove(i--);
-                    }
+                    DynamicEntity e = dynamicEntities.get(i);
+                    if (e.isVanished())
+                        dynamicEntities.remove(i--);
                 }
                 dynamicEntities.forEach(Entity::update);
                 break;
@@ -218,6 +206,7 @@ public class BombermanGame extends Application {
 
     private static long startTimeStamp = 0;
     private static long currentTimeStamp = 0;
+    private static long lastTimeStamp = 0;
 
     /**
      * get current time by nanosecond
@@ -225,6 +214,9 @@ public class BombermanGame extends Application {
      */
     public static long getTime() {
         return currentTimeStamp - startTimeStamp;
+    }
+    public static long getFPS() {
+        return 1000000000 / (currentTimeStamp - lastTimeStamp);
     }
     @Override
     public void start(Stage stage) throws Exception {
@@ -248,6 +240,7 @@ public class BombermanGame extends Application {
             public void handle(long l) {
                 if (startTimeStamp == 0)
                     startTimeStamp = l;
+                lastTimeStamp = currentTimeStamp;
                 currentTimeStamp = l;
                 update();
                 checkCollision();

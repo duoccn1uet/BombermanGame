@@ -1,34 +1,33 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
 import BombermanGame.BombermanGame;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
-import BombermanGame.GAME_STATUS;
+import BombermanGame.Entity.Dynamic.NotMoving.Brick;
+import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Position;
+import BombermanGame.Entity.Still.Wall;
+import BombermanGame.GAME_STATUS;
 import BombermanGame.KeyEventHandler.KeyEventListener;
 import BombermanGame.Sprite.Sprite;
 import javafx.event.Event;
 import javafx.event.EventType;
-import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
-import BombermanGame.Entity.Dynamic.NotMoving.Brick;
-import BombermanGame.Entity.Entity;
-import BombermanGame.Entity.Still.Wall;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static javafx.scene.input.KeyCode.*;
-import static javafx.scene.input.KeyCode.S;
 
 public class Bomber extends MovingEntity implements KeyEventListener {
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
-    public static final int DEFAULT_SPEED = 1;
+    public static final int DEFAULT_SPEED = 2;
     private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE);
     private KeyCode currentlyPressed;
-    private Queue<Bomb> bombQueue = new LinkedList<>();
     private int maxSpawnedBomb = 1;
 
     @Override
@@ -36,6 +35,11 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         direction = (DIRECTION) specifications[0];
         action = (MOVING_ENTITY_ACTION) specifications[1];
         speed = (int) specifications[2];
+    }
+
+    @Override
+    public boolean isVanished() {
+        return getAction() == MOVING_ENTITY_ACTION.DEAD;
     }
 
     public Bomber(int x, int y) {
@@ -51,9 +55,9 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     @Override
     public void update() {
         super.update();
-        while (!bombQueue.isEmpty() && bombQueue.peek().isVanished())
-            bombQueue.remove();
-        for (Bomb bomb : bombQueue)
+        while (!BombermanGame.bombQueue.isEmpty() && BombermanGame.bombQueue.peek().isVanished())
+            BombermanGame.bombQueue.remove();
+        for (Bomb bomb : BombermanGame.bombQueue)
             bomb.update();
         if(!isDead && action == MOVING_ENTITY_ACTION.MOVING) {
             this.last = new Position(position.getX(), position.getY());
@@ -64,7 +68,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     @Override
     public void render(GraphicsContext gc) {
         super.render(gc);
-        for (Bomb bomb : bombQueue) {
+        for (Bomb bomb : BombermanGame.bombQueue) {
             ///System.out.println("vl");
             bomb.render(gc);
         }
@@ -143,8 +147,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             currentlyPressed = keyEvent.getCode();
             switch (currentlyPressed) {
                 case SPACE:
-                    if (bombQueue.size() < maxSpawnedBomb) {
-                        bombQueue.add(new Bomb(getBoardX(), getBoardY()));
+                    if (BombermanGame.bombQueue.size() < maxSpawnedBomb) {
+                        BombermanGame.bombQueue.add(new Bomb(getBoardX(), getBoardY()));
                     }
                     break;
                 default:

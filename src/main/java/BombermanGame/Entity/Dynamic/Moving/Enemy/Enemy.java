@@ -7,7 +7,6 @@ import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Position;
 import BombermanGame.Entity.Still.Wall;
-import BombermanGame.Sprite.Sprite;
 import javafx.scene.image.Image;
 
 import java.util.Random;
@@ -71,6 +70,13 @@ public abstract class Enemy extends MovingEntity {
     public void moveToPos(Position newPosition) {
         position.setX(newPosition.getX());
         position.setY(newPosition.getY());
+    }
+
+    @Override
+    public boolean isVanished() {
+        ///System.out.println(this.getEntityName(true));
+        ///System.out.println(getAction());
+        return getAction() == MOVING_ENTITY_ACTION.DEAD && animation.finishCurrentAnimation();
     }
 
     @Override

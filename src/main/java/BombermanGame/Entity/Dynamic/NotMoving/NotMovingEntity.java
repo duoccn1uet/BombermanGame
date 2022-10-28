@@ -13,5 +13,4 @@ public abstract class NotMovingEntity extends DynamicEntity {
         super(x, y);
     }
 
-    public abstract boolean isVanished();
 }

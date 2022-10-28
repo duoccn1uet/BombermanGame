@@ -29,6 +29,8 @@ public abstract class DynamicEntity extends Entity {
 
     protected abstract void setDefaultSpecifications(Object... specifications);
 
+    public abstract boolean isVanished();
+
     public void update() {
         img = animation.getCurrentImage();
     }

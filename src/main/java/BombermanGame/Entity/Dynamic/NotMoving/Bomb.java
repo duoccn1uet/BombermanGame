@@ -1,8 +1,13 @@
 package BombermanGame.Entity.Dynamic.NotMoving;
 
 import BombermanGame.BombermanGame;
+import BombermanGame.Entity.Dynamic.DynamicEntity;
+import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
+import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Entity;
+import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -90,18 +95,20 @@ public class Bomb extends NotMovingEntity {
     }
 
 
-    private ArrayList<Entity> sl = BombermanGame.getStillEntities();
-    private ArrayList<Entity> dl = BombermanGame.getDynamicEntities();
+    private ArrayList<StillEntity> sl = BombermanGame.getStillEntities();
+    private ArrayList<DynamicEntity> dl = BombermanGame.getDynamicEntities();
     private boolean checkCollision(Explosion explosion) {
         for (Entity barrier : sl) {
             if (barrier instanceof Wall && barrier.isColliding(explosion))
                 return true;
         }
-        for (Entity barrier : dl) {
-            if (barrier instanceof Brick && barrier.isColliding(explosion)) {
-                ///System.out.println("collide brick");
+        for (Entity barrier : dl)
+            if (barrier.isColliding(explosion)) {
+            if (barrier instanceof Brick) {
                 ((Brick) barrier).detonate();
                 return true;
+            } else if (barrier instanceof MovingEntity) {
+                ((MovingEntity) barrier).setAction(MOVING_ENTITY_ACTION.DEAD);
             }
         }
         return false;
@@ -114,6 +121,7 @@ public class Bomb extends NotMovingEntity {
             int x = getBoardX();
             int y = getBoardY();
             bE = new bomb_exploded(x, y);
+            checkCollision(bE);
             for (DIRECTION direction : DIRECTION.values()) {
                 int i = direction.getValue();
                 int signX = direction.signXY()[0];

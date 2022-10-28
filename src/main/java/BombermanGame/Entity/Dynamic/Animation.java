@@ -2,6 +2,8 @@ package BombermanGame.Entity.Dynamic;
 
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Oneal;
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
@@ -18,21 +20,37 @@ public class Animation {
         I.e: minvo_left2
              minvo_dead1
      */
-    private static final int LOOP_TIME = 15;
-    private int moveListPointer = 0;
-    private int countLoop = 0;
+    private enum ANIMATION_TYPE {
+        MOVING(0),
+        NORMAL(4),
+        DEAD(5);
+
+        private final int value;
+        ANIMATION_TYPE(int value) {
+            this.value = value;
+        }
+        public int getValue() {
+            return value;
+        }
+    }
+    private static final int LOOP_TIME = 10;
     private DynamicEntity entity;
-    private ArrayList<Image> normal = new ArrayList<>();
-    private ArrayList<Image>[] directionMoves = new ArrayList[DIRECTION.size()];
-    private ArrayList<Image> dead = new ArrayList<>();
+    public static final int NUMBER_OF_TYPES = 6;
+    private ArrayList<Image>[] animation = new ArrayList[NUMBER_OF_TYPES];
+    private int[] listPointer = new int[NUMBER_OF_TYPES];
+    private int[] countLoop = new int[NUMBER_OF_TYPES];
     private DIRECTION lastDirectionHasAnimation;
     private int animationLoop = 0;
+    private int lastAnimationIndex = -1;
 
     Animation() {
-        for (int i = 0; i < directionMoves.length; ++i)
-            directionMoves[i] = new ArrayList<>();
+        for (int i = 0; i < animation.length; ++i)
+            animation[i] = new ArrayList<>();
     }
 
+    public boolean finishCurrentAnimation() {
+        return animationLoop > 0 && countLoop[lastAnimationIndex] == 0 && listPointer[lastAnimationIndex] == 0;
+    }
     public int getAnimationLoop() {
         return animationLoop;
     }
@@ -47,40 +65,53 @@ public class Animation {
     }
 
     private void updateLastDirectionHasAnimation(DIRECTION direction) {
-        if (!directionMoves[direction.getValue()].isEmpty())
+        if (!animation[direction.getValue()].isEmpty())
             lastDirectionHasAnimation = direction;
     }
+    private void loadImageList(String entityName, ANIMATION_TYPE type) {
+        switch (type) {
+            case MOVING:
+                for (DIRECTION direction : DIRECTION.values()) {
+                    loadImageList(entityName, direction.name().toLowerCase(), animation[direction.getValue()]);
+                    updateLastDirectionHasAnimation(direction);
+                }
+                break;
+            case DEAD:
+                loadImageList(entityName, "dead", animation[type.getValue()]);
+                break;
+            case NORMAL:
+                animation[type.getValue()].add(Sprite.getFxImage(entityName + ".png"));
+                loadImageList(entityName, "", animation[type.getValue()]);
+                break;
+        }
+    }
+
     public void load(DynamicEntity entity) {
         try {
             this.entity = entity;
+            String entityName = entity.getEntityName(true);
             if (entity instanceof MovingEntity) {
-                String entityName = entity.getEntityName(true);
-                for (DIRECTION direction : DIRECTION.values()) {
-                    loadImageList(entityName, direction.name().toLowerCase(), directionMoves[direction.getValue()]);
-                    updateLastDirectionHasAnimation(direction);
-                }
-                loadImageList(entityName, "dead", dead);
+                loadImageList(entityName, ANIMATION_TYPE.DEAD);
+                loadImageList(entityName, ANIMATION_TYPE.MOVING);
             } else if (entity instanceof NotMovingEntity) {
-                String entityName = entity.getClass().getSimpleName().toLowerCase();
-                normal.add(Sprite.getFxImage(entityName + ".png"));
-                loadImageList(entityName, "", normal);
+                loadImageList(entityName, ANIMATION_TYPE.NORMAL);
             } else {
                 throw new Exception("Can not load animation for nondynamic entity");
             }
         }
         catch (Exception e) {
             System.out.println("Error occurred when load animation for " + entity.getEntityName(true));
-            ///System.out.println("Message: " + e.printStackTrace(););
             e.printStackTrace();
         }
     }
 
-    private Image getCurrentImage(ArrayList<Image> moveList) {
-        Image res = moveList.get(moveListPointer);
-        if (++countLoop == LOOP_TIME) {
-            countLoop = 0;
-            if (++moveListPointer == moveList.size()) {
-                moveListPointer = 0;
+    private Image getCurrentImage(int i) {
+        lastAnimationIndex = i;
+        Image res = animation[i].get(listPointer[i]);
+        if (++countLoop[i] == LOOP_TIME) {
+            countLoop[i] = 0;
+            if (++listPointer[i] == animation[i].size()) {
+                listPointer[i] = 0;
                 ++animationLoop;
             }
         }
@@ -88,26 +119,26 @@ public class Animation {
     }
     public Image getCurrentImage() {
         if (entity instanceof NotMovingEntity) {
-            return getCurrentImage(normal);
+            return getCurrentImage(ANIMATION_TYPE.NORMAL.getValue());
         } else if (entity instanceof MovingEntity) {
             MovingEntity tEntity = (MovingEntity) entity;
             switch (tEntity.getAction()) {
                 case DEAD:
-                    return getCurrentImage(dead);
+                    return getCurrentImage(ANIMATION_TYPE.DEAD.getValue());
                 case STOP:
                     DIRECTION entityDirection = tEntity.getDirection();
-                    if (directionMoves[entityDirection.getValue()].isEmpty()) {
-                        return directionMoves[lastDirectionHasAnimation.getValue()].get(0);
+                    if (animation[entityDirection.getValue()].isEmpty()) {
+                        return animation[lastDirectionHasAnimation.getValue()].get(0);
                     }
                     lastDirectionHasAnimation = entityDirection;
-                    return directionMoves[entityDirection.getValue()].get(0);
+                    return animation[entityDirection.getValue()].get(0);
                 default: /// Moving
                     entityDirection = tEntity.getDirection();
-                    if (directionMoves[entityDirection.getValue()].isEmpty()) {
-                        return getCurrentImage(directionMoves[lastDirectionHasAnimation.getValue()]);
+                    if (animation[entityDirection.getValue()].isEmpty()) {
+                        return getCurrentImage(lastDirectionHasAnimation.getValue());
                     }
                     lastDirectionHasAnimation = entityDirection;
-                    return getCurrentImage(directionMoves[entityDirection.getValue()]);
+                    return getCurrentImage(entityDirection.getValue());
             }
         }
         return null;
