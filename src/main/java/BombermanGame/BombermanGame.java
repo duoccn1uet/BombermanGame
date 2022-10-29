@@ -9,6 +9,7 @@ import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
+import BombermanGame.Entity.Still.Item.Item;
 import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.KeyEventHandler.KeyEventHandler;
@@ -30,14 +31,13 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class BombermanGame extends Application {
     public static int WIDTH = 25;
     public static int HEIGHT = 15;
     public static Queue<Bomb> bombQueue = new LinkedList<>();
+    public static final int NUMBER_OF_LEVELS = 3;
     private int level = 1;
     private String path;
     private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
@@ -61,6 +61,11 @@ public class BombermanGame extends Application {
     private Pause pause = new Pause();
     private GameOver gameOver = new GameOver();
     public static GAME_STATUS gameStatus = GAME_STATUS.RUNNING;
+    private static final int MAX_ITEMS_PER_LEVEL = 6;
+    private static final int MIN_ITEMS_PER_LEVEL = 2;
+    private static final int[] ITEMS_PER_LEVEL = new int[NUMBER_OF_LEVELS];
+
+    public static ArrayList<Item> itemList = new ArrayList<>();
     // handler
     KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
 
@@ -88,9 +93,8 @@ public class BombermanGame extends Application {
             for (int i = 1; i < HEIGHT-1; ++i)
                 for (int j = 1; j < WIDTH-1; ++j)
                     addEntity(new Grass(j, i));
+            Entity object;
             for (int i = 0; i < HEIGHT; ++i) {
-                ///for (int j = 0; j < WIDTH; ++j) {
-                    Entity object;
                     String line = mapReader.readLine();
                     for (int j = 0; j < WIDTH; ++j) {
                         char type = line.charAt(j);
@@ -117,7 +121,20 @@ public class BombermanGame extends Application {
                         addEntity(object);
                     }
                 }
-            } catch (IOException ex) {
+            /// generate items
+            ArrayList<Integer> brickIndices = new ArrayList<>();
+            for (int i = 0; i < dynamicEntities.size(); ++i)
+                if (dynamicEntities.get(i) instanceof Brick)
+                    brickIndices.add(i);
+            Collections.shuffle(brickIndices);
+            ITEMS_PER_LEVEL[level] = (int) CommonFunction.rand(MIN_ITEMS_PER_LEVEL, MAX_ITEMS_PER_LEVEL);
+            if (ITEMS_PER_LEVEL[level] > brickIndices.size())
+                ITEMS_PER_LEVEL[level] = brickIndices.size();
+            for (int i = 0; i < ITEMS_PER_LEVEL[level]; ++i) {
+                int index = brickIndices.get(i);
+                itemList.add(Item.randomItem((Brick) dynamicEntities.get(index)));
+            }
+            } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -163,8 +180,12 @@ public class BombermanGame extends Application {
                 break;
             case RUNNING:
                 stillEntities.forEach(g -> g.render(gc));
+                for (Bomb bomb : BombermanGame.bombQueue)
+                    bomb.render(gc);
                 bomber.render(gc);
                 dynamicEntities.forEach(g -> g.render(gc));
+                for (Item item : itemList)
+                    item.render(gc);
                 break;
             case PAUSED:
                 stillEntities.forEach(g -> g.render(gc));
@@ -193,6 +214,10 @@ public class BombermanGame extends Application {
                     if (e.isVanished())
                         dynamicEntities.remove(i--);
                 }
+                while (!bombQueue.isEmpty() && bombQueue.peek().isVanished())
+                    bombQueue.remove();
+                for (Bomb bomb : bombQueue)
+                    bomb.update();
                 dynamicEntities.forEach(Entity::update);
                 break;
             case PAUSED:
@@ -231,9 +256,6 @@ public class BombermanGame extends Application {
 
         loadMap(level);
         loadEventHandler();
-        for (Entity e : stillEntities)
-            if (e instanceof Brick)
-                System.out.println(e.getBoardX() + " "  + e.getBoardY());
 
         AnimationTimer timer = new AnimationTimer() {
             @Override

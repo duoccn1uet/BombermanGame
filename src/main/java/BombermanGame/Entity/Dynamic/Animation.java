@@ -2,8 +2,7 @@ package BombermanGame.Entity.Dynamic;
 
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
-import BombermanGame.Entity.Dynamic.Moving.Enemy.Oneal;
-import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
@@ -33,7 +32,7 @@ public class Animation {
             return value;
         }
     }
-    private static final int LOOP_TIME = 10;
+    private int loopTime = 10;
     private DynamicEntity entity;
     public static final int NUMBER_OF_TYPES = 6;
     private ArrayList<Image>[] animation = new ArrayList[NUMBER_OF_TYPES];
@@ -86,7 +85,18 @@ public class Animation {
         }
     }
 
+    void setLoopTime(DynamicEntity entity) {
+        if (entity instanceof Bomber) {
+            loopTime = 10;
+        } else if (entity instanceof Enemy) {
+            loopTime = 15;
+        } else if (entity instanceof Bomb) {
+            loopTime = 10;
+        }
+    }
+
     public void load(DynamicEntity entity) {
+        setLoopTime(entity);
         try {
             this.entity = entity;
             String entityName = entity.getEntityName(true);
@@ -108,7 +118,7 @@ public class Animation {
     private Image getCurrentImage(int i) {
         lastAnimationIndex = i;
         Image res = animation[i].get(listPointer[i]);
-        if (++countLoop[i] == LOOP_TIME) {
+        if (++countLoop[i] == loopTime) {
             countLoop[i] = 0;
             if (++listPointer[i] == animation[i].size()) {
                 listPointer[i] = 0;

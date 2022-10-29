@@ -13,5 +13,6 @@ public class Main {
     public static void main(String[] args) {
         BombermanGame game = new BombermanGame();
         game.runGame(args);
+        CommonVar.timer.cancel();
     }
 }

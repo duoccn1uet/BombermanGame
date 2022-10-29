@@ -56,12 +56,12 @@ public class Bomb extends NotMovingEntity {
     private bomb_exploded bE;
     private ArrayList<Explosion>[] explosions = new ArrayList[DIRECTION.size()];
 
-    /// Not include last explosion
-    public static final int DEFAULT_EXPLOSION_LENGTH  = 2;
-    public static final int POWER_UP_EXPLOSION_LENGTH  = 4;
+    private static boolean isPowerUp = false;
+    private static final int DEFAULT_EXPLOSION_LENGTH  = 2;
+    private static final int POWER_UP_EXPLOSION_LENGTH  = 4;
     public static final long waitForExplosion = (long) 3e9;
 
-    private int explosionLength = DEFAULT_EXPLOSION_LENGTH;
+    private final int explosionLength = isPowerUp ? POWER_UP_EXPLOSION_LENGTH : DEFAULT_EXPLOSION_LENGTH;
     private boolean isDetonated = false;
     private long startSpawnTime = 0;
     public Bomb(int xUnit, int yUnit, Image img) {
@@ -90,11 +90,13 @@ public class Bomb extends NotMovingEntity {
     public void detonate() {
         startSpawnTime = BombermanGame.getTime();
     }
-    public void powerUp() {
-        explosionLength = POWER_UP_EXPLOSION_LENGTH;
+    public static void powerUp() {
+        isPowerUp = true;
     }
 
-
+    public static void powerDown() {
+        isPowerUp = false;
+    }
     private ArrayList<StillEntity> sl = BombermanGame.getStillEntities();
     private ArrayList<DynamicEntity> dl = BombermanGame.getDynamicEntities();
     private boolean checkCollision(Explosion explosion) {
