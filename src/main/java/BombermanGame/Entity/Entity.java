@@ -1,6 +1,8 @@
 package BombermanGame.Entity;
 
 import BombermanGame.BombermanGame;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
+import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;

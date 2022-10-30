@@ -62,7 +62,7 @@ public class BombermanGame extends Application {
     private Menu menu = new Menu();
     private Pause pause = new Pause();
     private GameOver gameOver = new GameOver();
-    public static GAME_STATUS gameStatus = GAME_STATUS.RUNNING;
+    public static GAME_STATUS gameStatus = GAME_STATUS.MENU;
     private static final int MAX_ITEMS_PER_LEVEL = 6;
     private static final int MIN_ITEMS_PER_LEVEL = 2;
     private static final int[] ITEMS_PER_LEVEL = new int[NUMBER_OF_LEVELS];
@@ -152,6 +152,19 @@ public class BombermanGame extends Application {
         mouseEventHandler.registerEvent(gameOver);
     }
 
+    private void clearMap() {
+        bombQueue.clear();
+        dynamicEntities.clear();
+        stillEntities.clear();
+        itemList.clear();
+
+        keyEventHandler.removeEvent(bomber);
+
+        mouseEventHandler.removeEvent(menu);
+        mouseEventHandler.removeEvent(pause);
+        mouseEventHandler.removeEvent(gameOver);
+    }
+
     private void checkCollision() {
         for(Entity entity1 : dynamicEntities) {
             for(Entity entity2 : dynamicEntities) {
@@ -159,6 +172,10 @@ public class BombermanGame extends Application {
                     break;
             }
             for(Entity entity2 : stillEntities) {
+                if(handleCollision(entity1, entity2))
+                    break;
+            }
+            for(Entity entity2 : bombQueue) {
                 if(handleCollision(entity1, entity2))
                     break;
             }
@@ -189,7 +206,7 @@ public class BombermanGame extends Application {
                 break;
             case RUNNING:
                 stillEntities.forEach(g -> g.render(gc));
-                for (Bomb bomb : BombermanGame.bombQueue)
+                for (Bomb bomb : bombQueue)
                     bomb.render(gc);
                 bomber.render(gc);
                 dynamicEntities.forEach(g -> g.render(gc));
@@ -216,7 +233,14 @@ public class BombermanGame extends Application {
             case MENU:
                 menu.update();
                 break;
+            case GAME_LOAD:
+                clearMap();
+                loadMap(level);
+                loadEventHandler();
+                setGameStatus(GAME_STATUS.RUNNING);
+                break;
             case RUNNING:
+                checkCollision();
                 stillEntities.forEach(Entity::update);
                 for (int i = 0; i < dynamicEntities.size(); ++i) {
                     DynamicEntity e = dynamicEntities.get(i);
@@ -237,6 +261,7 @@ public class BombermanGame extends Application {
                 break;
         }
     }
+
     private static long startTimeStamp = 0;
     private static long currentTimeStamp = 0;
     private static long lastTimeStamp = 0;
@@ -254,6 +279,9 @@ public class BombermanGame extends Application {
     }
     public static void setGameStatus(GAME_STATUS gameStatus) {
         BombermanGame.gameStatus = gameStatus;
+    }
+    public static GAME_STATUS getGameStatus() {
+        return gameStatus;
     }
 
     @Override
@@ -277,8 +305,8 @@ public class BombermanGame extends Application {
                     startTimeStamp = l;
                 lastTimeStamp = currentTimeStamp;
                 currentTimeStamp = l;
-                update();
                 checkCollision();
+                update();
                 render();
             }
         };

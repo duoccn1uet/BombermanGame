@@ -4,13 +4,16 @@ import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
+import BombermanGame.Entity.Position;
 import BombermanGame.Entity.Still.Wall;
 import javafx.scene.image.Image;
+
+import java.util.Random;
 
 public class Oneal extends Enemy {
 
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
-    public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
+    public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.MOVING;
     public static final int DEFAULT_SPEED = 1;
 
     public Oneal(int xUnit, int yUnit, Image img) {
@@ -22,6 +25,23 @@ public class Oneal extends Enemy {
     public Oneal(int x, int y) {
         super(x, y);
         setDefaultSpecifications(DEFAULT_DIRECTION, DEFAULT_ACTION, DEFAULT_SPEED);
+    }
+
+    @Override
+    public Position move() {
+        Position newPosition;
+
+        Random random = new Random();
+        int rnd = random.nextInt(100);
+
+        if(rnd < 30) {
+            // chasing algo
+            newPosition = super.move();
+        } else {
+            newPosition = super.move();
+        }
+
+        return newPosition;
     }
 
     @Override

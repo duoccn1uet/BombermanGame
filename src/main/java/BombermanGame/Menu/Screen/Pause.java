@@ -26,11 +26,20 @@ public class Pause implements MouseEventListener {
     }
 
     public void update() {
-
+        if(resume.getBUTTON_STATUS() == 2) {
+            BombermanGame.setGameStatus(GAME_STATUS.RUNNING);
+            resume.setBUTTON_STATUS(0);
+        }
+        if (back.getBUTTON_STATUS() == 2) {
+            BombermanGame.setGameStatus(GAME_STATUS.MENU);
+            back.setBUTTON_STATUS(0);
+        }
     }
 
     public void render(GraphicsContext gc) {
         gc.drawImage(image, position.getX(), position.getY());
+        this.resume.render(gc);
+        this.back.render(gc);
     }
 
     @Override
@@ -39,12 +48,11 @@ public class Pause implements MouseEventListener {
         if (MouseEvent.MOUSE_MOVED.equals(eventType)) {
             resume.hovered(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY()));
             back.hovered(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY()));
-        } else if (MouseEvent.MOUSE_CLICKED.equals(eventType)) {
-            if (resume.clicked(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY()))) {
-                BombermanGame.setGameStatus(GAME_STATUS.RUNNING);
-            } else if (back.clicked(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY()))) {
-                // back to menu
-            }
+        } else if (MouseEvent.MOUSE_CLICKED.equals(eventType) && BombermanGame.getGameStatus() == GAME_STATUS.PAUSED) {
+            if (resume.clicked(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY())))
+                resume.setBUTTON_STATUS(2);
+            if (back.clicked(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY())))
+                back.setBUTTON_STATUS(2);
         }
     }
 }

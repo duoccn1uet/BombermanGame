@@ -177,8 +177,16 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             switch (currentlyPressed) {
                 case SPACE:
                     if (BombermanGame.bombQueue.size() < maxSpawnedBomb) {
-                        BombermanGame.bombQueue.add(new Bomb(getBoardX(), getBoardY()));
+                        int tmpX = getBoardX() + (getX() % Sprite.SCALED_SIZE >= Sprite.DEFAULT_SIZE ? 1 : 0);
+                        int tmpY = getBoardY() + (getY() % Sprite.SCALED_SIZE >= Sprite.DEFAULT_SIZE ? 1 : 0);
+                        BombermanGame.bombQueue.add(new Bomb(tmpX, tmpY));
                     }
+                    break;
+                case ESCAPE:
+                    if(BombermanGame.getGameStatus() == GAME_STATUS.RUNNING)
+                        BombermanGame.setGameStatus(GAME_STATUS.PAUSED);
+                    else
+                        BombermanGame.setGameStatus(GAME_STATUS.RUNNING);
                     break;
                 default:
                     this.direction = getDirection(keyEvent);

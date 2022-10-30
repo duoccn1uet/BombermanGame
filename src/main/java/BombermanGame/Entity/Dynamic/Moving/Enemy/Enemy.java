@@ -3,6 +3,7 @@ package BombermanGame.Entity.Dynamic.Moving.Enemy;
 import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
+import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Position;
@@ -26,7 +27,7 @@ public abstract class Enemy extends MovingEntity {
         if(position.getX() % 64 == 32 && position.getY() % 64 == 32) {
             Random random = new Random();
             int rnd = random.nextInt(100);
-            if(rnd < 30)
+            if(rnd < 20)
                 changeDirection();
         }
         switch (direction) {
@@ -85,6 +86,8 @@ public abstract class Enemy extends MovingEntity {
             collide((Wall) entity);
         if(entity instanceof Brick)
             collide((Brick) entity);
+        if(entity instanceof Bomb)
+            collide((Bomb) entity);
     }
 
     protected void collide(Wall wall) {
@@ -96,6 +99,14 @@ public abstract class Enemy extends MovingEntity {
     }
 
     protected void collide(Brick brick) {
+        if(last != null)
+            position = last;
+        last = null;
+        moveToPos(position);
+        changeDirection();
+    }
+
+    protected void collide(Bomb bomb) {
         if(last != null)
             position = last;
         last = null;

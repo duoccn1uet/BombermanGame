@@ -12,6 +12,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 
+import java.awt.*;
+
 public class Menu implements MouseEventListener {
     public Image image;
     public Position position;
@@ -24,7 +26,10 @@ public class Menu implements MouseEventListener {
     }
 
     public void update() {
-
+        if(play.getBUTTON_STATUS() == 2) {
+            BombermanGame.setGameStatus(GAME_STATUS.GAME_LOAD);
+            play.setBUTTON_STATUS(0);
+        }
     }
 
     public void render(GraphicsContext gc) {
@@ -37,9 +42,9 @@ public class Menu implements MouseEventListener {
         EventType<? extends Event> eventType = mouseEvent.getEventType();
         if(MouseEvent.MOUSE_MOVED.equals(eventType)) {
             play.hovered(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()));
-        } else if(MouseEvent.MOUSE_CLICKED.equals(eventType)) {
+        } else if(MouseEvent.MOUSE_CLICKED.equals(eventType) && BombermanGame.getGameStatus() == GAME_STATUS.MENU) {
             if(play.clicked(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()))) {
-                BombermanGame.setGameStatus(GAME_STATUS.RUNNING);
+                play.setBUTTON_STATUS(2);
             }
         }
     }

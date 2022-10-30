@@ -5,9 +5,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 public class GameButton {
-    public Image[] image = new Image[2];
+    public Image[] image = new Image[3];
     public Position position;
-    public static int BUTTON_STATUS = 0;
+    public int BUTTON_STATUS = 0;
     public static int BUTTON_WIDTH = 200;
     public static int BUTTON_HEIGHT = 65;
 
@@ -17,13 +17,15 @@ public class GameButton {
         this.image[0] = ImageComponent.getFxImage(image0);
         // hovered
         this.image[1] = ImageComponent.getFxImage(image1);
+        // clicked
+        this.image[2] = ImageComponent.getFxImage(image0);
     }
 
     public void hovered(Position cursor) {
         if(onButton(cursor)) {
-            BUTTON_STATUS = 1;
+            this.BUTTON_STATUS = 1;
         } else {
-            BUTTON_STATUS = 0;
+            this.BUTTON_STATUS = 0;
         }
     }
 
@@ -39,6 +41,14 @@ public class GameButton {
 
         return lx <= cursor.getX() && cursor.getX() <= rx
             && ly <= cursor.getY() && cursor.getY() <= ry;
+    }
+
+    public int getBUTTON_STATUS() {
+        return BUTTON_STATUS;
+    }
+
+    public void setBUTTON_STATUS(int BUTTON_STATUS) {
+        this.BUTTON_STATUS = BUTTON_STATUS;
     }
 
     public void render(GraphicsContext gc) {

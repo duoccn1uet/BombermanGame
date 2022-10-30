@@ -1,6 +1,7 @@
 package BombermanGame.Menu.Screen;
 
 import BombermanGame.BombermanGame;
+import BombermanGame.GAME_STATUS;
 import BombermanGame.Entity.Position;
 import BombermanGame.Menu.GameButton;
 import BombermanGame.Menu.ImageComponent;
@@ -27,7 +28,14 @@ public class GameOver implements MouseEventListener {
     }
 
     public void update() {
-
+        if(retry.getBUTTON_STATUS() == 2) {
+            BombermanGame.setGameStatus(GAME_STATUS.GAME_LOAD);
+            retry.setBUTTON_STATUS(0);
+        }
+        if(back.getBUTTON_STATUS() == 2) {
+            BombermanGame.setGameStatus(GAME_STATUS.MENU);
+            back.setBUTTON_STATUS(0);
+        }
     }
 
     public void render(GraphicsContext gc) {
@@ -40,13 +48,14 @@ public class GameOver implements MouseEventListener {
     public void notify(MouseEvent mouseEvent) {
         EventType<? extends Event> eventType = mouseEvent.getEventType();
         if(MouseEvent.MOUSE_MOVED.equals(eventType)) {
-            retry.hovered(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()));
-            back.hovered(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()));
-        } else if(MouseEvent.MOUSE_CLICKED.equals(eventType)) {
+            Position tmp = new Position((int)mouseEvent.getX(), (int)mouseEvent.getY());
+            retry.hovered(tmp);
+            back.hovered(tmp);
+        } else if(MouseEvent.MOUSE_CLICKED.equals(eventType) && BombermanGame.getGameStatus() == GAME_STATUS.GAME_OVER) {
             if(retry.clicked(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()))) {
-                // restart level
+                retry.setBUTTON_STATUS(2);
             } else if(back.clicked(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()))) {
-                // bakc to menu
+                back.setBUTTON_STATUS(2);
             }
         }
     }
