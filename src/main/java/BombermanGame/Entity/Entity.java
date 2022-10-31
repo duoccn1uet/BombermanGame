@@ -28,6 +28,14 @@ public abstract class Entity {
     public int getBoardY() {
         return getY() / Sprite.SCALED_SIZE;
     }
+
+    public void setBoardX(int x) {
+        setX(x * Sprite.SCALED_SIZE);
+    }
+
+    public void setBoardY(int y) {
+        setY(y * Sprite.SCALED_SIZE);
+    }
     public int getX() {
         return position.getX();
     }

@@ -12,12 +12,18 @@ public class Balloom extends Enemy {
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.MOVING;
     public static final int DEFAULT_SPEED = 1;
+    private static final int DEFAULT_BONUS_SCORE = 50;
 
     @Override
     protected void setDefaultSpecifications(Object... specifications) {
         direction = (DIRECTION) specifications[0];
         action = (MOVING_ENTITY_ACTION) specifications[1];
         speed = (int) specifications[2];
+    }
+
+    @Override
+    protected void initBonusScore() {
+        bonusScore = DEFAULT_BONUS_SCORE;
     }
 
     public Balloom(int xUnit, int yUnit, Image img) {

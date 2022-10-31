@@ -1,7 +1,6 @@
 package BombermanGame.Entity.Dynamic.Moving;
 
 
-import BombermanGame.CommonFunction;
 import BombermanGame.CommonVar;
 import BombermanGame.BombermanGame;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
@@ -15,7 +14,7 @@ import BombermanGame.Entity.Still.Item.Item;
 import BombermanGame.Entity.Still.Item.SpeedItem;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.GAME_STATUS;
-import BombermanGame.KeyEventHandler.KeyEventListener;
+import BombermanGame.TaskHandler.KeyEventHandler.KeyEventListener;
 import BombermanGame.Sprite.Sprite;
 import javafx.event.Event;
 import javafx.event.EventType;
@@ -25,9 +24,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimerTask;
-import java.util.function.Function;
 
 import static javafx.scene.input.KeyCode.*;
 
@@ -35,9 +34,15 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
     public static final int DEFAULT_SPEED = 2;
+
+    private int[] countApplyingItems = new int[Item.ITEM_TYPE.size()];
     private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE, ESCAPE);
     private KeyCode currentlyPressed;
     private int maxSpawnedBomb = 1;
+
+    public int getMaxSpawnedBomb() {
+        return maxSpawnedBomb;
+    }
 
     @Override
     protected void setDefaultSpecifications(Object... specifications) {
@@ -71,28 +76,35 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         for (Item item : BombermanGame.itemList)
             if (!item.isInsideBrick() && isColliding(item)) {
                 applyItem(item);
+                BombermanGame.score += item.getBonusScore();
+                BombermanGame.scoreBoard.addItemProperty(item);
                 BombermanGame.itemList.remove(item);
                 break;
             }
     }
 
     private void applyItem(Item item) {
+        int type = item.getType().getValue();
         if (item instanceof BombItem) {
             ++maxSpawnedBomb;
         } else if (item instanceof FlameItem) {
             Bomb.powerUp();
+            ++countApplyingItems[type];
             CommonVar.timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    Bomb.powerDown();
+                    if (--countApplyingItems[type] == 0)
+                        Bomb.powerDown();
                 }
             }, item.getApplyDuration() / 1000000);
         } else if (item instanceof SpeedItem) {
             speed = DEFAULT_SPEED * 2;
+            ++countApplyingItems[type];
             CommonVar.timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    speed = DEFAULT_SPEED;
+                    if (--countApplyingItems[type] == 0)
+                        speed = DEFAULT_SPEED;
                 }
             }, item.getApplyDuration() / 1000000);
         }
@@ -166,6 +178,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     }
     @Override
     public void notify(KeyEvent keyEvent) {
+        if (getAction() == MOVING_ENTITY_ACTION.DEAD)
+            return;
         EventType<? extends Event> eventType = keyEvent.getEventType();
         if (KeyEvent.KEY_RELEASED.equals(eventType)) {
             if (keyEvent.getCode().equals(currentlyPressed)) {

@@ -42,17 +42,19 @@ public class Brick extends NotMovingEntity {
 
     @Override
     public void update() {
-        super.update();
         if (isDetonated) {
             explodedBrick.update();
+        } else {
+            super.update();
         }
     }
 
     @Override
     public void render(GraphicsContext gc) {
-        super.render(gc);
         if (isDetonated) {
             explodedBrick.render(gc);
+        } else {
+            super.render(gc);
         }
     }
 

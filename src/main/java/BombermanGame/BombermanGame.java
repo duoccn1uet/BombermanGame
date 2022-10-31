@@ -6,19 +6,19 @@ import BombermanGame.Entity.Dynamic.Moving.Enemy.Balloom;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Oneal;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
-import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
 import BombermanGame.Entity.Still.Item.Item;
 import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
-import BombermanGame.KeyEventHandler.KeyEventHandler;
-import BombermanGame.KeyEventHandler.KeyEventHandlerImpl;
+import BombermanGame.TaskHandler.KeyEventHandler.KeyEventHandler;
+import BombermanGame.TaskHandler.KeyEventHandler.KeyEventHandlerImpl;
 import BombermanGame.Menu.Screen.GameOver;
 import BombermanGame.Menu.Screen.Menu;
 import BombermanGame.Menu.Screen.Pause;
-import BombermanGame.MouseEventHandler.MouseEventHandler;
-import BombermanGame.MouseEventHandler.MouseEventHandlerImpl;
+import BombermanGame.TaskHandler.MouseEventHandler.MouseEventHandler;
+import BombermanGame.TaskHandler.MouseEventHandler.MouseEventHandlerImpl;
+import BombermanGame.ScoreBoard.ScoreBoard;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -34,13 +34,15 @@ import java.util.*;
 public class BombermanGame extends Application {
     public static int WIDTH = 25;
     public static int HEIGHT = 15;
+    public static int R_WIDTH;
+    public static int R_HEIGHT;
     public static Queue<Bomb> bombQueue = new LinkedList<>();
     public static final int NUMBER_OF_LEVELS = 3;
     private int level = 1;
     private String path;
     private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
     private static ArrayList<StillEntity> stillEntities = new ArrayList<>();
-    private Bomber bomber;/// = new Bomber();
+    public static Bomber bomber;/// = new Bomber();
     private Group root;
     private Scene scene;
     private Canvas canvas;
@@ -59,15 +61,22 @@ public class BombermanGame extends Application {
     private Pause pause = new Pause();
     private GameOver gameOver = new GameOver();
     public static GAME_STATUS gameStatus = GAME_STATUS.MENU;
-    private static final int MAX_ITEMS_PER_LEVEL = 6;
-    private static final int MIN_ITEMS_PER_LEVEL = 2;
+    private static final int MAX_ITEMS_PER_LEVEL = 10;
+    private static final int MIN_ITEMS_PER_LEVEL = 4;
     private static final int[] ITEMS_PER_LEVEL = new int[NUMBER_OF_LEVELS];
+    private static final int[] TIME_PER_LEVEL = {300, 300, 300};
+    private static int remainingTime;
+    public static int score = 0;
+    public static int getRemainingTime() {
+        return remainingTime;
+    }
 
     public static ArrayList<Item> itemList = new ArrayList<>();
     // handler
     KeyEventHandler keyEventHandler = new KeyEventHandlerImpl();
     MouseEventHandler mouseEventHandler = new MouseEventHandlerImpl();
 
+    public static ScoreBoard scoreBoard;
     public void runGame(String[] args) {
         launch(args);
     }
@@ -202,12 +211,20 @@ public class BombermanGame extends Application {
                 break;
             case RUNNING:
                 stillEntities.forEach(g -> g.render(gc));
-                for (Bomb bomb : bombQueue)
-                    bomb.render(gc);
-                bomber.render(gc);
-                dynamicEntities.forEach(g -> g.render(gc));
+                dynamicEntities.forEach(g -> {
+                    if (g instanceof Brick)
+                        g.render(gc);
+                });
                 for (Item item : itemList)
                     item.render(gc);
+                for (Bomb bomb : BombermanGame.bombQueue)
+                    bomb.render(gc);
+                bomber.render(gc);
+                dynamicEntities.forEach(g -> {
+                    if (!(g instanceof Brick))
+                        g.render(gc);
+                });
+                scoreBoard.render(gc);
                 break;
             case PAUSED:
                 stillEntities.forEach(g -> g.render(gc));
@@ -224,7 +241,19 @@ public class BombermanGame extends Application {
         }
     }
 
+    private void countDown() {
+        CommonVar.timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (remainingTime >= 0) {
+                    --remainingTime;
+                    countDown();
+                }
+            }
+        },1000);
+    }
     private void update() {
+
         switch (gameStatus) {
             case MENU:
                 menu.update();
@@ -248,6 +277,7 @@ public class BombermanGame extends Application {
                 for (Bomb bomb : bombQueue)
                     bomb.update();
                 dynamicEntities.forEach(Entity::update);
+                scoreBoard.update();
                 break;
             case PAUSED:
                 pause.update();
@@ -261,6 +291,7 @@ public class BombermanGame extends Application {
     private static long startTimeStamp = 0;
     private static long currentTimeStamp = 0;
     private static long lastTimeStamp = 0;
+    private static long lastSecondStamp = 0;
 
     /**
      * get current time by nanosecond
@@ -282,7 +313,9 @@ public class BombermanGame extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        canvas = new Canvas(Sprite.SCALED_SIZE * WIDTH, Sprite.SCALED_SIZE * HEIGHT);
+        canvas = new Canvas(Sprite.SCALED_SIZE * (WIDTH + ScoreBoard.WIDTH), Sprite.SCALED_SIZE * HEIGHT);
+        R_WIDTH = (int) canvas.getWidth();
+        R_HEIGHT = (int) canvas.getHeight();
         gc = canvas.getGraphicsContext2D();
 
         root = new Group();
@@ -291,6 +324,8 @@ public class BombermanGame extends Application {
         stage.setTitle("Bomberman");
         stage.setScene(scene);
 
+        scoreBoard = new ScoreBoard(root);
+        remainingTime = TIME_PER_LEVEL[level-1];
         loadMap(level);
         loadEventHandler();
 
@@ -306,6 +341,7 @@ public class BombermanGame extends Application {
                 render();
             }
         };
+        countDown();
         timer.start();
         stage.show();
     }

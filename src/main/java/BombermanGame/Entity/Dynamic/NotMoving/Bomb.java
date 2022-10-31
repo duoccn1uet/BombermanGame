@@ -2,7 +2,6 @@ package BombermanGame.Entity.Dynamic.NotMoving;
 
 import BombermanGame.BombermanGame;
 import BombermanGame.Entity.Dynamic.DynamicEntity;
-import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
 import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
@@ -67,11 +66,11 @@ public class Bomb extends NotMovingEntity {
     private long startSpawnTime = 0;
     public Bomb(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
-        detonate();
+        spawn();
     }
     public Bomb(int x, int y) {
         super(x, y);
-        detonate();
+        spawn();
     }
 
     @Override
@@ -88,7 +87,7 @@ public class Bomb extends NotMovingEntity {
 
     }
 
-    public void detonate() {
+    public void spawn() {
         startSpawnTime = BombermanGame.getTime();
     }
     public static void powerUp() {
@@ -111,68 +110,79 @@ public class Bomb extends NotMovingEntity {
                 ((Brick) barrier).detonate();
                 return true;
             } else if (barrier instanceof MovingEntity) {
+                if (barrier instanceof Enemy && ((Enemy) barrier).getAction() != MOVING_ENTITY_ACTION.DEAD)
+                    BombermanGame.score += ((Enemy) barrier).getBonusScore();
                 ((MovingEntity) barrier).setAction(MOVING_ENTITY_ACTION.DEAD);
             }
         }
+        for (Bomb other : BombermanGame.bombQueue)
+            if (other != this && !other.isDetonated)
+                other.detonate();
         return false;
+    }
+
+    private void detonate() {
+        isDetonated = true;
+        int x = getBoardX();
+        int y = getBoardY();
+        bE = new bomb_exploded(x, y);
+        checkCollision(bE);
+        for (DIRECTION direction : DIRECTION.values()) {
+            int i = direction.getValue();
+            int signX = direction.signXY()[0];
+            int signY = direction.signXY()[1];
+            explosions[i] = new ArrayList<>();
+            for (int j = 1; j <= explosionLength; ++j) {
+                int eX = x + signX * j;
+                int eY = y + signY * j;
+                Explosion e;
+                switch (direction) {
+                    case UP:
+                        if (j < explosionLength)
+                            e = new explosion_vertical(eX, eY);
+                        else
+                            e = new explosion_vertical_top_last(eX, eY);
+                        break;
+                    case RIGHT:
+                        if (j < explosionLength)
+                            e = new explosion_horizontal(eX, eY);
+                        else
+                            e = new explosion_horizontal_right_last(eX, eY);
+                        break;
+                    case DOWN:
+                        if (j < explosionLength)
+                            e = new explosion_vertical(eX, eY);
+                        else
+                            e = new explosion_vertical_down_last(eX, eY);
+                        break;
+                    default:
+                        if (j < explosionLength)
+                            e = new explosion_horizontal(eX, eY);
+                        else
+                            e = new explosion_horizontal_left_last(eX, eY);
+                        break;
+                }
+                if (checkCollision(e))
+                    break;
+                explosions[i].add(e);
+            }
+        }
     }
 
     @Override
     public void update() {
-        if (!isDetonated && BombermanGame.getTime() - startSpawnTime >= waitForExplosion) {
-            isDetonated = true;
-            int x = getBoardX();
-            int y = getBoardY();
-            bE = new bomb_exploded(x, y);
-            checkCollision(bE);
-            for (DIRECTION direction : DIRECTION.values()) {
-                int i = direction.getValue();
-                int signX = direction.signXY()[0];
-                int signY = direction.signXY()[1];
-                explosions[i] = new ArrayList<>();
-                for (int j = 1; j <= explosionLength; ++j) {
-                    int eX = x + signX * j;
-                    int eY = y + signY * j;
-                    Explosion e;
-                    switch (direction) {
-                        case UP:
-                            if (j < explosionLength)
-                                e = new explosion_vertical(eX, eY);
-                            else
-                                e = new explosion_vertical_top_last(eX, eY);
-                            break;
-                        case RIGHT:
-                            if (j < explosionLength)
-                                e = new explosion_horizontal(eX, eY);
-                            else
-                                e = new explosion_horizontal_right_last(eX, eY);
-                            break;
-                        case DOWN:
-                            if (j < explosionLength)
-                                e = new explosion_vertical(eX, eY);
-                            else
-                                e = new explosion_vertical_down_last(eX, eY);
-                            break;
-                        default:
-                            if (j < explosionLength)
-                                e = new explosion_horizontal(eX, eY);
-                            else
-                                e = new explosion_horizontal_left_last(eX, eY);
-                            break;
-                    }
-                    if (checkCollision(e))
-                        break;
-                    explosions[i].add(e);
-                }
-            }
-        }
+        if (!isDetonated && BombermanGame.getTime() - startSpawnTime >= waitForExplosion)
+            detonate();
         if (!isDetonated) {
             super.update();
         } else {
             bE.update();
+            checkCollision(bE);
             for (ArrayList<Explosion> explosionList : explosions)
-                for (Explosion explosion : explosionList)
+                for (Explosion explosion : explosionList) {
                     explosion.update();
+                    checkCollision(explosion);
+                }
         }
     }
     @Override

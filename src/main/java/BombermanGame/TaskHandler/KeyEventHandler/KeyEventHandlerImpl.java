@@ -1,4 +1,4 @@
-package BombermanGame.KeyEventHandler;
+package BombermanGame.TaskHandler.KeyEventHandler;
 
 import javafx.event.EventHandler;
 import javafx.scene.Scene;

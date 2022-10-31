@@ -5,8 +5,7 @@ import BombermanGame.GAME_STATUS;
 import BombermanGame.Entity.Position;
 import BombermanGame.Menu.GameButton;
 import BombermanGame.Menu.ImageComponent;
-import BombermanGame.MouseEventHandler.MouseEventHandler;
-import BombermanGame.MouseEventHandler.MouseEventListener;
+import BombermanGame.TaskHandler.MouseEventHandler.MouseEventListener;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.canvas.GraphicsContext;
@@ -28,11 +27,11 @@ public class GameOver implements MouseEventListener {
     }
 
     public void update() {
-        if(retry.getBUTTON_STATUS() == 2) {
+        if (retry.getBUTTON_STATUS() == 2) {
             BombermanGame.setGameStatus(GAME_STATUS.GAME_LOAD);
             retry.setBUTTON_STATUS(0);
         }
-        if(back.getBUTTON_STATUS() == 2) {
+        if (back.getBUTTON_STATUS() == 2) {
             BombermanGame.setGameStatus(GAME_STATUS.MENU);
             back.setBUTTON_STATUS(0);
         }
@@ -47,14 +46,14 @@ public class GameOver implements MouseEventListener {
     @Override
     public void notify(MouseEvent mouseEvent) {
         EventType<? extends Event> eventType = mouseEvent.getEventType();
-        if(MouseEvent.MOUSE_MOVED.equals(eventType)) {
-            Position tmp = new Position((int)mouseEvent.getX(), (int)mouseEvent.getY());
+        if (MouseEvent.MOUSE_MOVED.equals(eventType)) {
+            Position tmp = new Position((int) mouseEvent.getX(), (int) mouseEvent.getY());
             retry.hovered(tmp);
             back.hovered(tmp);
-        } else if(MouseEvent.MOUSE_CLICKED.equals(eventType) && BombermanGame.getGameStatus() == GAME_STATUS.GAME_OVER) {
-            if(retry.clicked(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()))) {
+        } else if (MouseEvent.MOUSE_CLICKED.equals(eventType) && BombermanGame.getGameStatus() == GAME_STATUS.GAME_OVER) {
+            if (retry.clicked(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY()))) {
                 retry.setBUTTON_STATUS(2);
-            } else if(back.clicked(new Position((int)mouseEvent.getX(), (int)mouseEvent.getY()))) {
+            } else if (back.clicked(new Position((int) mouseEvent.getX(), (int) mouseEvent.getY()))) {
                 back.setBUTTON_STATUS(2);
             }
         }

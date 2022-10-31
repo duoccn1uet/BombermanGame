@@ -6,6 +6,8 @@ import javafx.scene.image.Image;
 
 public class BombItem extends Item {
     public static final long DEFAULT_APPLY_TIME = -1;
+    private static final int DEFAULT_BONUS_SCORE = 20;
+
     public BombItem(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
     }
@@ -15,8 +17,18 @@ public class BombItem extends Item {
     }
 
     @Override
-    protected void initApplyTime() {
+    protected void initApplyDuration() {
         applyDuration = DEFAULT_APPLY_TIME;
+    }
+
+    @Override
+    protected void initBonusScore() {
+        bonusScore = DEFAULT_BONUS_SCORE;
+    }
+
+    @Override
+    public ITEM_TYPE getType() {
+        return ITEM_TYPE.BOMB;
     }
 
     public BombItem(Brick brick) {
