@@ -5,6 +5,7 @@ import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
+import BombermanGame.Entity.Dynamic.NotMoving.Explosion;
 import BombermanGame.Entity.Dynamic.NotMoving.NotMovingEntity;
 import BombermanGame.Sprite.Sprite;
 import javafx.scene.image.Image;
@@ -92,6 +93,8 @@ public class Animation {
             loopTime = 15;
         } else if (entity instanceof Bomb) {
             loopTime = 10;
+        } else if (entity instanceof Explosion) {
+            loopTime = 7;
         }
     }
 

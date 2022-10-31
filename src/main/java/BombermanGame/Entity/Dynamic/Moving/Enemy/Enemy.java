@@ -12,13 +12,21 @@ import javafx.scene.image.Image;
 import java.util.Random;
 
 public abstract class Enemy extends MovingEntity {
+    protected int bonusScore;
+
+    protected abstract void initBonusScore();
+    public int getBonusScore() {
+        return bonusScore;
+    }
 
     public Enemy(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
+        initBonusScore();
     }
 
     public Enemy(int x, int y) {
         super(x, y);
+        initBonusScore();
     }
 
     public Position move() {
@@ -74,8 +82,6 @@ public abstract class Enemy extends MovingEntity {
 
     @Override
     public boolean isVanished() {
-        ///System.out.println(this.getEntityName(true));
-        ///System.out.println(getAction());
         return getAction() == MOVING_ENTITY_ACTION.DEAD && animation.finishCurrentAnimation();
     }
 

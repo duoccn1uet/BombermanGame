@@ -5,7 +5,7 @@ import BombermanGame.Entity.Position;
 import BombermanGame.GAME_STATUS;
 import BombermanGame.Menu.GameButton;
 import BombermanGame.Menu.ImageComponent;
-import BombermanGame.MouseEventHandler.MouseEventListener;
+import BombermanGame.TaskHandler.MouseEventHandler.MouseEventListener;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.canvas.GraphicsContext;

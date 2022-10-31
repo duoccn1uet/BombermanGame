@@ -12,6 +12,12 @@ public class Oneal extends Enemy {
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
     public static final int DEFAULT_SPEED = 1;
+    private static final int DEFAULT_BONUS_SCORE = 50;
+
+    @Override
+    protected void initBonusScore() {
+        bonusScore = DEFAULT_BONUS_SCORE;
+    }
 
     public Oneal(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);

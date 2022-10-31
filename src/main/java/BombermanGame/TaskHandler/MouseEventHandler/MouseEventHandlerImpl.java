@@ -1,4 +1,4 @@
-package BombermanGame.MouseEventHandler;
+package BombermanGame.TaskHandler.MouseEventHandler;
 
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
