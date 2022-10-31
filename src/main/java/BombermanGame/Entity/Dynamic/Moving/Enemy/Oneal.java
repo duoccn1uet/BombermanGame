@@ -52,28 +52,6 @@ public class Oneal extends Enemy {
     }
 
     @Override
-    public void collide(Entity entity) {
-        if(entity instanceof Wall)
-            collide((Wall) entity);
-        if(entity instanceof Brick)
-            collide((Brick) entity);
-    }
-
-    protected void collide(Wall wall) {
-        if(last != null)
-            position = last;
-        last = null;
-        changeDirection();
-    }
-
-    protected void collide(Brick brick) {
-        if(last != null)
-            position = last;
-        last = null;
-        changeDirection();
-    }
-
-    @Override
     public void update() {
         super.update();
     }

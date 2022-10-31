@@ -14,7 +14,6 @@ import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.KeyEventHandler.KeyEventHandler;
 import BombermanGame.KeyEventHandler.KeyEventHandlerImpl;
-import BombermanGame.Menu.ImageComponent;
 import BombermanGame.Menu.Screen.GameOver;
 import BombermanGame.Menu.Screen.Menu;
 import BombermanGame.Menu.Screen.Pause;
@@ -27,12 +26,9 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class BombermanGame extends Application {

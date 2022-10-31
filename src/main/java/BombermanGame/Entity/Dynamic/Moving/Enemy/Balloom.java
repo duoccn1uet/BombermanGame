@@ -34,28 +34,4 @@ public class Balloom extends Enemy {
     public void update() {
         super.update();
     }
-
-    @Override
-    public void collide(Entity entity) {
-        if(entity instanceof Wall)
-            collide((Wall) entity);
-        if(entity instanceof Brick)
-            collide((Brick) entity);
-    }
-
-    protected void collide(Wall wall) {
-        if(last != null)
-            position = last;
-        last = null;
-        changeDirection();
-    }
-
-    protected void collide(Brick brick) {
-        if(last != null)
-            position = last;
-        last = null;
-        changeDirection();
-    }
-
-
 }

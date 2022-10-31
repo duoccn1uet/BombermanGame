@@ -204,6 +204,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             collide((Brick) entity);
         else if(entity instanceof Enemy)
             collide((Enemy) entity);
+        else if(entity instanceof Bomb)
+            collide((Bomb) entity);
     }
 
     protected void collide(Wall wall) {
@@ -226,5 +228,11 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             speed = 0;
             BombermanGame.setGameStatus(GAME_STATUS.GAME_OVER);
         }
+    }
+
+    protected void collide(Bomb bomb) {
+//        if(last != null)
+//            position = last;
+//        last = null;
     }
 }
