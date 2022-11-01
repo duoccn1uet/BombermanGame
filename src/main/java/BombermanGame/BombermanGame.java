@@ -207,26 +207,22 @@ public class BombermanGame extends Application {
         if (pause != null) mouseEventHandler.removeEvent(gameOver);
     }
 
-    private void checkCollision() {
-        for(Entity entity1 : dynamicEntities) {
-            for(Entity entity2 : dynamicEntities) {
-                if(handleCollision(entity1, entity2))
-                    break;
-            }
-            for(Entity entity2 : stillEntities) {
-                if(handleCollision(entity1, entity2));
-            }
-            for(Entity entity2 : bombQueue) {
-                if(handleCollision(entity1, entity2))
-                    break;
-            }
+    private void checkCollision(Entity entity) {
+        for(Entity entity2 : dynamicEntities) {
+            if(handleCollision(entity, entity2))
+                break;
         }
-
-        for(Entity entity1 : stillEntities) {
-            for(Entity entity2 : dynamicEntities) {
-                if(handleCollision(entity1, entity2))
-                    break;
-            }
+        for(Entity entity2 : stillEntities) {
+            if(handleCollision(entity, entity2))
+                break;
+        }
+        for(Entity entity2 : bombQueue) {
+            if(handleCollision(entity, entity2))
+                break;
+        }
+        for(Entity entity2 : stillEntities) {
+            if(handleCollision(entity, entity2))
+                break;
         }
     }
 
@@ -335,8 +331,10 @@ public class BombermanGame extends Application {
                     bombQueue.remove();
                 for (Bomb bomb : bombQueue)
                     bomb.update();
-                dynamicEntities.forEach(Entity::update);
-                checkCollision();
+                for(Entity entity : dynamicEntities) {
+                    entity.update();
+                    checkCollision(entity);
+                }
                 scoreBoard.update();
                 break;
             case PAUSED:
@@ -407,7 +405,6 @@ public class BombermanGame extends Application {
                     startTimeStamp = l;
                 lastTimeStamp = currentTimeStamp;
                 currentTimeStamp = l;
-                checkCollision();
                 update();
                 render();
             }

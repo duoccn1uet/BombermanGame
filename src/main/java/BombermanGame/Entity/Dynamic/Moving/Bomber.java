@@ -35,7 +35,6 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
     public static final int DEFAULT_SPEED = 2;
-
     private int[] countApplyingItems = new int[Item.ITEM_TYPE.size()];
     private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE, ESCAPE);
     private KeyCode currentlyPressed;
