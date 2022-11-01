@@ -38,20 +38,7 @@ public abstract class Enemy extends MovingEntity {
             if(rnd < 20)
                 changeDirection();
         }
-        switch (direction) {
-            case UP:
-                newPosition = position.up(speed);
-                break;
-            case DOWN:
-                newPosition = position.down(speed);
-                break;
-            case LEFT:
-                newPosition = position.left(speed);
-                break;
-            default:
-                newPosition = position.right(speed);
-                break;
-        }
+        newPosition = super.move();
         return newPosition;
     }
 
