@@ -3,6 +3,8 @@ package BombermanGame;
 import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Balloom;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Doll;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.Kondoria;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Oneal;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
@@ -37,11 +39,12 @@ public class BombermanGame extends Application {
     public static int R_WIDTH;
     public static int R_HEIGHT;
     public static Queue<Bomb> bombQueue = new LinkedList<>();
-    public static final int NUMBER_OF_LEVELS = 3;
-    private int level = 1;
+    public static final int NUMBER_OF_LEVELS = 5;
+    private int level = 2;
     private String path;
     private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
     private static ArrayList<StillEntity> stillEntities = new ArrayList<>();
+    private static ArrayList<Grass> grasses = new ArrayList<>();
     public static Bomber bomber;/// = new Bomber();
     private Group root;
     private Scene scene;
@@ -81,7 +84,9 @@ public class BombermanGame extends Application {
         launch(args);
     }
     private void addEntity(Entity entity) {
-        if (entity instanceof StillEntity) {
+        if(entity instanceof Grass) {
+          grasses.add((Grass) entity);
+        } else if (entity instanceof StillEntity) {
             stillEntities.add((StillEntity) entity);
         } else if (entity instanceof DynamicEntity) {
             dynamicEntities.add((DynamicEntity) entity);
@@ -96,14 +101,28 @@ public class BombermanGame extends Application {
             File directory = new File(".");
             path = directory.getAbsolutePath() + "/src/main/resources/Map/level_" + level + ".m";
             BufferedReader mapReader = new BufferedReader(new FileReader(new File(path)));
-            mapReader.readLine();
+            // read width and height
+            String line = mapReader.readLine();
+            HEIGHT = 0;
+            WIDTH = 0;
+            int tmp = 0;
+            while(tmp < line.length()) {
+                if(line.charAt(tmp) == ' ') {
+                    tmp ++;
+                    break;
+                }
+                HEIGHT = HEIGHT * 10 + (line.charAt(tmp ++) - '0');
+            }
+            while(tmp < line.length()) {
+                WIDTH = WIDTH * 10 + (line.charAt(tmp ++) - '0');
+            }
 
             for (int i = 1; i < HEIGHT-1; ++i)
                 for (int j = 1; j < WIDTH-1; ++j)
                     addEntity(new Grass(j, i));
             Entity object;
             for (int i = 0; i < HEIGHT; ++i) {
-                    String line = mapReader.readLine();
+                    line = mapReader.readLine();
                     for (int j = 0; j < WIDTH; ++j) {
                         char type = line.charAt(j);
                         switch (type) {
@@ -121,6 +140,12 @@ public class BombermanGame extends Application {
                                 break;
                             case '2':
                                 object = new Oneal(j, i);
+                                break;
+                            case '3':
+                                object = new Doll(j, i);
+                                break;
+                            case '4':
+                                object = new Kondoria(j, i);
                                 break;
                             default:
                                 object = new Grass(j, i);
@@ -159,6 +184,7 @@ public class BombermanGame extends Application {
 
     private void clearMap() {
         bombQueue.clear();
+        grasses.clear();
         dynamicEntities.clear();
         stillEntities.clear();
         itemList.clear();
@@ -177,8 +203,7 @@ public class BombermanGame extends Application {
                     break;
             }
             for(Entity entity2 : stillEntities) {
-                if(handleCollision(entity1, entity2))
-                    break;
+                if(handleCollision(entity1, entity2));
             }
             for(Entity entity2 : bombQueue) {
                 if(handleCollision(entity1, entity2))
@@ -210,6 +235,7 @@ public class BombermanGame extends Application {
                 menu.render(gc);
                 break;
             case RUNNING:
+                grasses.forEach(g -> g.render(gc));
                 stillEntities.forEach(g -> g.render(gc));
                 dynamicEntities.forEach(g -> {
                     if (g instanceof Brick)
@@ -227,12 +253,14 @@ public class BombermanGame extends Application {
                 scoreBoard.render(gc);
                 break;
             case PAUSED:
+                grasses.forEach(g -> g.render(gc));
                 stillEntities.forEach(g -> g.render(gc));
                 dynamicEntities.forEach(g -> g.render(gc));
                 bomber.render(gc);
                 pause.render(gc);
                 break;
             case GAME_OVER:
+                grasses.forEach(g -> g.render(gc));
                 stillEntities.forEach(g -> g.render(gc));
                 dynamicEntities.forEach(g -> g.render(gc));
                 bomber.render(gc);
@@ -265,7 +293,6 @@ public class BombermanGame extends Application {
                 setGameStatus(GAME_STATUS.RUNNING);
                 break;
             case RUNNING:
-                checkCollision();
                 stillEntities.forEach(Entity::update);
                 for (int i = 0; i < dynamicEntities.size(); ++i) {
                     DynamicEntity e = dynamicEntities.get(i);
@@ -277,6 +304,7 @@ public class BombermanGame extends Application {
                 for (Bomb bomb : bombQueue)
                     bomb.update();
                 dynamicEntities.forEach(Entity::update);
+                checkCollision();
                 scoreBoard.update();
                 break;
             case PAUSED:
