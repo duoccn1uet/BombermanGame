@@ -14,6 +14,7 @@ import BombermanGame.Entity.Still.Item.Item;
 import BombermanGame.Entity.Still.Item.SpeedItem;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.GAME_STATUS;
+import BombermanGame.Sound.Sound;
 import BombermanGame.TaskHandler.KeyEventHandler.KeyEventListener;
 import BombermanGame.Sprite.Sprite;
 import javafx.event.Event;
@@ -39,6 +40,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE, ESCAPE);
     private KeyCode currentlyPressed;
     private int maxSpawnedBomb = 1;
+    private Sound applyItemSound = new Sound(Sound.FILE.APPLY_ITEM.toString());
+    private Sound deadSound = new Sound(Sound.FILE.BOMBER_DEAD.toString());
 
     public int getMaxSpawnedBomb() {
         return maxSpawnedBomb;
@@ -47,7 +50,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     @Override
     protected void setDefaultSpecifications(Object... specifications) {
         direction = (DIRECTION) specifications[0];
-        action = (MOVING_ENTITY_ACTION) specifications[1];
+        setAction((MOVING_ENTITY_ACTION) specifications[1]);
         speed = (int) specifications[2];
     }
 
@@ -69,7 +72,10 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     @Override
     public void update() {
         super.update();
-        if(!isDead && action == MOVING_ENTITY_ACTION.MOVING) {
+        if (isVanished()) {
+            BombermanGame.setGameStatus(GAME_STATUS.GAME_OVER);
+        }
+        if(getAction() == MOVING_ENTITY_ACTION.MOVING) {
             this.last = new Position(position.getX(), position.getY());
             position = move(position, direction);
         }
@@ -83,7 +89,15 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             }
     }
 
+    @Override
+    public void setAction(MOVING_ENTITY_ACTION action) {
+        if (action == MOVING_ENTITY_ACTION.DEAD)
+            deadSound.play();
+        super.setAction(action);
+    }
+
     private void applyItem(Item item) {
+        applyItemSound.play();
         int type = item.getType().getValue();
         if (item instanceof BombItem) {
             ++maxSpawnedBomb;
@@ -183,7 +197,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         EventType<? extends Event> eventType = keyEvent.getEventType();
         if (KeyEvent.KEY_RELEASED.equals(eventType)) {
             if (keyEvent.getCode().equals(currentlyPressed)) {
-                action = MOVING_ENTITY_ACTION.STOP;
+                setAction(MOVING_ENTITY_ACTION.STOP);
                 ///this.speed = 0;
             }
         } else if (KeyEvent.KEY_PRESSED.equals(eventType)) {
@@ -204,7 +218,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
                     break;
                 default:
                     this.direction = getDirection(keyEvent);
-                    action = MOVING_ENTITY_ACTION.MOVING;
+                    setAction(MOVING_ENTITY_ACTION.MOVING);
                     ///this.speed = DEFAULT_SPEED;
             }
         }
@@ -237,10 +251,9 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     }
 
     protected void collide(Enemy enemy) {
-        if(!isDead) {
-            isDead = true;
+        if(getAction() != MOVING_ENTITY_ACTION.DEAD) {
+            setAction(MOVING_ENTITY_ACTION.DEAD);
             speed = 0;
-            BombermanGame.setGameStatus(GAME_STATUS.GAME_OVER);
         }
     }
 

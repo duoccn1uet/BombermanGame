@@ -18,6 +18,7 @@ import javafx.scene.text.Text;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -30,6 +31,7 @@ import java.util.TimerTask;
  * 6: Item: thời gian còn tác dụng của từng loại item
  */
 public class ScoreBoard {
+    public static Timer timer = new Timer();
     public static final int WIDTH = 8;
 
     private static final class Background {
@@ -244,24 +246,33 @@ public class ScoreBoard {
     private static final int PROPERTY_START_Y = 90;
     private static final int LINE_SPACING = 20;
     private static Text title = new Text();
-    private ArrayList<Property>[] properties = new ArrayList[PROPERTY_KEY.size()];
-    private Group root;
-    private Text fps = new Text();
 
-    public ScoreBoard(Group root) {
-        this.root = root;
-        for (int i = 0; i < properties.length; ++i)
-            properties[i] = new ArrayList<>();
-        for (PROPERTY_KEY property : PROPERTY_KEY.values())
-            initProperty(property);
-
-        ObservableList<Node> a = root.getChildren();
+    static {
         title.setText("board");
         title.setFont(Font.loadFont("file:" + Property.FONT_PATH, 40));
         title.setFill(Color.DARKGOLDENROD);
         title.setX(PROPERTY_X + 17);
         title.setY(PROPERTY_START_Y - 25);
-        a.add(title);
+    }
+    private ArrayList<Property>[] properties = new ArrayList[PROPERTY_KEY.size()];
+    private Group root;
+    private Text fps = new Text();
+
+    private void reset() {
+        if (timer != null)
+            timer.cancel();
+    }
+
+    public ScoreBoard(Group root) {
+        this.root = root;
+        reset();
+        for (int i = 0; i < properties.length; ++i)
+            properties[i] = new ArrayList<>();
+        for (PROPERTY_KEY property : PROPERTY_KEY.values())
+            initProperty(property);
+
+        timer = new Timer();
+        ObservableList<Node> a = root.getChildren();
 
         fps.setText("FPS: ");
         fps.setFont(Font.loadFont("file:" + Property.FONT_PATH, 15));
@@ -269,6 +280,9 @@ public class ScoreBoard {
         fps.setX(BombermanGame.R_WIDTH - 32 - 55);
         fps.setY(BombermanGame.R_HEIGHT - 32 - 7);
         a.add(fps);
+
+        a.add(title);
+
         for (PROPERTY_KEY propertyKey : PROPERTY_KEY.values()) {
             for (Property property : properties[propertyKey.getValue()]) {
                 if (property.key instanceof TextKeyProperty) {
@@ -378,7 +392,7 @@ public class ScoreBoard {
                 if (eKey.scheduled)
                     return;
                 eKey.scheduled = true;
-                CommonVar.timer.schedule(new TimerTask() {
+                timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         if (eKey.remainingTime >= 0) {
@@ -396,7 +410,7 @@ public class ScoreBoard {
     public void update() {
         if (!renderFPS) {
             renderFPS = true;
-            CommonVar.timer.schedule(new TimerTask() {
+            timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     fps.setText("FPS: " + BombermanGame.getFPS());

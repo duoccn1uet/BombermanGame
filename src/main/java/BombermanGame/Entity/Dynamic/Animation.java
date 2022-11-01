@@ -3,6 +3,7 @@ package BombermanGame.Entity.Dynamic;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.Enemy.Enemy;
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
 import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Explosion;
@@ -131,6 +132,8 @@ public class Animation {
         return res;
     }
     public Image getCurrentImage() {
+        if (entity instanceof Bomber && ((Bomber) entity).getAction() == MOVING_ENTITY_ACTION.DEAD)
+            loopTime = 20;
         if (entity instanceof NotMovingEntity) {
             return getCurrentImage(ANIMATION_TYPE.NORMAL.getValue());
         } else if (entity instanceof MovingEntity) {

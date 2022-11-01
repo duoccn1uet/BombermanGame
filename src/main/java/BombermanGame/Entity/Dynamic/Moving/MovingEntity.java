@@ -5,9 +5,8 @@ import BombermanGame.Entity.Entity;
 import javafx.scene.image.Image;
 
 public abstract class MovingEntity extends DynamicEntity {
-    protected boolean isDead = false;
     protected DIRECTION direction = DIRECTION.DOWN;
-    protected MOVING_ENTITY_ACTION action;
+    private MOVING_ENTITY_ACTION action;
     protected int speed;
 
     public DIRECTION getDirection() {

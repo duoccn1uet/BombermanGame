@@ -9,6 +9,7 @@ import BombermanGame.Entity.Dynamic.Moving.MovingEntity;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
+import BombermanGame.Sound.Sound;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
@@ -64,6 +65,9 @@ public class Bomb extends NotMovingEntity {
     private final int explosionLength = isPowerUp ? POWER_UP_EXPLOSION_LENGTH : DEFAULT_EXPLOSION_LENGTH;
     private boolean isDetonated = false;
     private long startSpawnTime = 0;
+
+    public Sound bombTimerSound = new Sound(Sound.FILE.BOMB_TIMER.toString());
+    public Sound explosionSound = new Sound(Sound.FILE.EXPLOSION.toString());
     public Bomb(int xUnit, int yUnit, Image img) {
         super(xUnit, yUnit, img);
         spawn();
@@ -89,6 +93,7 @@ public class Bomb extends NotMovingEntity {
 
     public void spawn() {
         startSpawnTime = BombermanGame.getTime();
+        bombTimerSound.play();
     }
     public static void powerUp() {
         isPowerUp = true;
@@ -116,7 +121,7 @@ public class Bomb extends NotMovingEntity {
             }
         }
         for (Bomb other : BombermanGame.bombQueue)
-            if (other != this && !other.isDetonated)
+            if (other != this && !other.isDetonated && other.isColliding(explosion))
                 other.detonate();
         return false;
     }
@@ -167,6 +172,7 @@ public class Bomb extends NotMovingEntity {
                 explosions[i].add(e);
             }
         }
+        explosionSound.play();
     }
 
     @Override

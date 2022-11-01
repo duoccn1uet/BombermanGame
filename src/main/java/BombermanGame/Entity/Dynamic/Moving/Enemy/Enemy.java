@@ -57,8 +57,6 @@ public abstract class Enemy extends MovingEntity {
 
     @Override
     public void update() {
-        if(isDead)
-            return;
         if (this.getAction() == MOVING_ENTITY_ACTION.MOVING) {
             last = new Position(position.getX(), position.getY());
             position = move();

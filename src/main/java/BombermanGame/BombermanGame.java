@@ -11,6 +11,7 @@ import BombermanGame.Entity.Still.Grass;
 import BombermanGame.Entity.Still.Item.Item;
 import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
+import BombermanGame.Sound.Sound;
 import BombermanGame.TaskHandler.KeyEventHandler.KeyEventHandler;
 import BombermanGame.TaskHandler.KeyEventHandler.KeyEventHandlerImpl;
 import BombermanGame.Menu.Screen.GameOver;
@@ -22,10 +23,13 @@ import BombermanGame.ScoreBoard.ScoreBoard;
 import BombermanGame.Sprite.Sprite;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -43,10 +47,13 @@ public class BombermanGame extends Application {
     private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
     private static ArrayList<StillEntity> stillEntities = new ArrayList<>();
     public static Bomber bomber;/// = new Bomber();
-    private Group root;
+    public static Group root;
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gc;
+    private Sound screenSound;
+    private TimerTask countDownTask;
+    private static Sound gameOverSound;
 
     public static ArrayList<DynamicEntity> getDynamicEntities() {
         return dynamicEntities;
@@ -147,6 +154,10 @@ public class BombermanGame extends Application {
         }
     }
 
+    private void initEventHandler() {
+        keyEventHandler.init(scene);
+        mouseEventHandler.init(scene);
+    }
     private void loadEventHandler() {
         keyEventHandler.init(scene);
         keyEventHandler.registerEvent(bomber);
@@ -163,11 +174,11 @@ public class BombermanGame extends Application {
         stillEntities.clear();
         itemList.clear();
 
-        keyEventHandler.removeEvent(bomber);
+        if (bomber != null) keyEventHandler.removeEvent(bomber);
 
-        mouseEventHandler.removeEvent(menu);
-        mouseEventHandler.removeEvent(pause);
-        mouseEventHandler.removeEvent(gameOver);
+        if (menu != null) mouseEventHandler.removeEvent(menu);
+        if (pause != null) mouseEventHandler.removeEvent(pause);
+        if (pause != null) mouseEventHandler.removeEvent(gameOver);
     }
 
     private void checkCollision() {
@@ -203,6 +214,23 @@ public class BombermanGame extends Application {
         return false;
     }
 
+    private void renderEntities() {
+        stillEntities.forEach(g -> g.render(gc));
+        dynamicEntities.forEach(g -> {
+            if (g instanceof Brick)
+                g.render(gc);
+        });
+        for (Item item : itemList)
+            item.render(gc);
+        for (Bomb bomb : BombermanGame.bombQueue)
+            bomb.render(gc);
+        bomber.render(gc);
+        dynamicEntities.forEach(g -> {
+            if (!(g instanceof Brick))
+                g.render(gc);
+        });
+        scoreBoard.render(gc);
+    }
     private void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         switch (gameStatus) {
@@ -210,58 +238,64 @@ public class BombermanGame extends Application {
                 menu.render(gc);
                 break;
             case RUNNING:
-                stillEntities.forEach(g -> g.render(gc));
-                dynamicEntities.forEach(g -> {
-                    if (g instanceof Brick)
-                        g.render(gc);
-                });
-                for (Item item : itemList)
-                    item.render(gc);
-                for (Bomb bomb : BombermanGame.bombQueue)
-                    bomb.render(gc);
-                bomber.render(gc);
-                dynamicEntities.forEach(g -> {
-                    if (!(g instanceof Brick))
-                        g.render(gc);
-                });
-                scoreBoard.render(gc);
+                renderEntities();
                 break;
             case PAUSED:
-                stillEntities.forEach(g -> g.render(gc));
-                dynamicEntities.forEach(g -> g.render(gc));
-                bomber.render(gc);
+                renderEntities();
                 pause.render(gc);
                 break;
             case GAME_OVER:
-                stillEntities.forEach(g -> g.render(gc));
-                dynamicEntities.forEach(g -> g.render(gc));
-                bomber.render(gc);
+                renderEntities();
                 gameOver.render(gc);
                 break;
         }
     }
 
     private void countDown() {
-        CommonVar.timer.schedule(new TimerTask() {
+         countDownTask = new TimerTask() {
             @Override
             public void run() {
-                if (remainingTime >= 0) {
+                if (remainingTime > 0) {
                     --remainingTime;
-                    countDown();
+                }
+                else {
+                    setGameStatus(GAME_STATUS.GAME_OVER);
                 }
             }
-        },1000);
+        };
+        CommonVar.timer.schedule(countDownTask,0, 1000);
+    }
+    private void reset() {
+        gameOverSound.stop();
+        score = 0;
+        if (countDownTask != null)
+            countDownTask.cancel();
+        clearMap();
+        ObservableList<Node> nodes = root.getChildren();
+        for (int i = 0; i < nodes.size(); ++i)
+            if (nodes.get(i) instanceof Text)
+                nodes.remove(i--);
     }
     private void update() {
 
         switch (gameStatus) {
             case MENU:
+                reset();
+                initEventHandler();
+                mouseEventHandler.registerEvent(menu);
+                if (!screenSound.isPlaying())
+                    screenSound.play();
                 menu.update();
                 break;
             case GAME_LOAD:
-                clearMap();
+                reset();
+                scoreBoard = new ScoreBoard(root);
+                remainingTime = TIME_PER_LEVEL[level-1];
                 loadMap(level);
                 loadEventHandler();
+                if (!screenSound.isPlaying())
+                    screenSound.play();
+                countDown();
                 setGameStatus(GAME_STATUS.RUNNING);
                 break;
             case RUNNING:
@@ -305,7 +339,13 @@ public class BombermanGame extends Application {
         return 1000000000 / (currentTimeStamp - lastTimeStamp);
     }
     public static void setGameStatus(GAME_STATUS gameStatus) {
+        if (BombermanGame.gameStatus == gameStatus)
+            return;
         BombermanGame.gameStatus = gameStatus;
+        if (gameStatus == GAME_STATUS.GAME_OVER) {
+            Sound.doAll(Sound::stop);
+            gameOverSound.play();
+        }
     }
     public static GAME_STATUS getGameStatus() {
         return gameStatus;
@@ -323,12 +363,17 @@ public class BombermanGame extends Application {
         scene = new Scene(root);
         stage.setTitle("Bomberman");
         stage.setScene(scene);
+//
+//        scoreBoard = new ScoreBoard(root);
+//        remainingTime = TIME_PER_LEVEL[level-1];
+//        loadMap(level);
+//        loadEventHandler();
+        screenSound = new Sound(Sound.FILE.SCREEN.toString());
+        screenSound.setVolume(0.3);
+        screenSound.setLoop(-1);
+        screenSound.play();
 
-        scoreBoard = new ScoreBoard(root);
-        remainingTime = TIME_PER_LEVEL[level-1];
-        loadMap(level);
-        loadEventHandler();
-
+        gameOverSound = new Sound(Sound.FILE.GAME_OVER.toString());
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
@@ -341,7 +386,6 @@ public class BombermanGame extends Application {
                 render();
             }
         };
-        countDown();
         timer.start();
         stage.show();
     }

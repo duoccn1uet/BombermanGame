@@ -1,5 +1,6 @@
 package BombermanGame;
 
+import BombermanGame.ScoreBoard.ScoreBoard;
 import BombermanGame.Sprite.Sprite;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -14,5 +15,6 @@ public class Main {
         BombermanGame game = new BombermanGame();
         game.runGame(args);
         CommonVar.timer.cancel();
+        ScoreBoard.timer.cancel();
     }
 }

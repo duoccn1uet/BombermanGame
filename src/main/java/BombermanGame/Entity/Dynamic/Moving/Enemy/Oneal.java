@@ -53,7 +53,7 @@ public class Oneal extends Enemy {
     @Override
     protected void setDefaultSpecifications(Object... specifications) {
         direction = (DIRECTION) specifications[0];
-        action = (MOVING_ENTITY_ACTION) specifications[1];
+        setAction((MOVING_ENTITY_ACTION) specifications[1]);
         speed = (int) specifications[2];
     }
 
