@@ -87,6 +87,10 @@ public class Bomber extends MovingEntity implements KeyEventListener {
                 BombermanGame.itemList.remove(item);
                 break;
             }
+//        for later bomberman update: when burned to dead -=> Game over screen
+//        if(action == MOVING_ENTITY_ACTION.DEAD) {
+//            BombermanGame.setGameStatus(GAME_STATUS.GAME_OVER);
+//        }
     }
 
     @Override
@@ -150,45 +154,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     }
 
     public Position move(Position position, DIRECTION direction) {
-        Position newPosition;
-        switch (direction) {
-            case UP:
-                if(position.getX() % Sprite.SCALED_SIZE == 0)
-                    newPosition = new Position(position.getX(), position.getY() - speed);
-                else if(position.getX() % Sprite.SCALED_SIZE <= 16)
-                    newPosition = new Position(position.getX() - 1, position.getY());
-                else
-                    newPosition = new Position(position.getX() + 1, position.getY());
-                break;
-            case DOWN:
-                if(position.getX() % Sprite.SCALED_SIZE == 0)
-                    newPosition = new Position(position.getX(), position.getY() + speed);
-                else if(position.getX() % Sprite.SCALED_SIZE <= 16)
-                    newPosition = new Position(position.getX() - 1, position.getY());
-                else
-                    newPosition = new Position(position.getX() + 1, position.getY());
-                break;
-            case LEFT:
-                if(position.getY() % Sprite.SCALED_SIZE == 0)
-                    newPosition = new Position(position.getX() - speed, position.getY());
-                else if(position.getY() % Sprite.SCALED_SIZE <= 16)
-                    newPosition = new Position(position.getX(), position.getY() - 1);
-                else
-                    newPosition = new Position(position.getX(), position.getY() + 1);
-                break;
-            case RIGHT:
-                if(position.getY() % Sprite.SCALED_SIZE == 0)
-                    newPosition = new Position(position.getX() + speed, position.getY());
-                else if(position.getY() % Sprite.SCALED_SIZE <= 16)
-                    newPosition = new Position(position.getX(), position.getY() - 1);
-                else
-                    newPosition = new Position(position.getX(), position.getY() + 1);
-                break;
-            default:
-                newPosition = position;
-                break;
-        }
-        return newPosition;
+        return super.move();
     }
     @Override
     public void notify(KeyEvent keyEvent) {
@@ -205,8 +171,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             switch (currentlyPressed) {
                 case SPACE:
                     if (BombermanGame.bombQueue.size() < maxSpawnedBomb) {
-                        int tmpX = getBoardX() + (getX() % Sprite.SCALED_SIZE >= Sprite.DEFAULT_SIZE ? 1 : 0);
-                        int tmpY = getBoardY() + (getY() % Sprite.SCALED_SIZE >= Sprite.DEFAULT_SIZE ? 1 : 0);
+                        int tmpX = getBoardX();
+                        int tmpY = getBoardY();
                         BombermanGame.bombQueue.add(new Bomb(tmpX, tmpY));
                     }
                     break;

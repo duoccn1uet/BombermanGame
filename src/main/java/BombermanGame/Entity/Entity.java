@@ -22,11 +22,11 @@ public abstract class Entity {
     }
 
     public int getBoardX() {
-        return getX() / Sprite.SCALED_SIZE;
+        return getX() / Sprite.SCALED_SIZE + (getX() % Sprite.SCALED_SIZE < 16 ? 0 : 1);
     }
 
     public int getBoardY() {
-        return getY() / Sprite.SCALED_SIZE;
+        return getY() / Sprite.SCALED_SIZE + (getY() % Sprite.SCALED_SIZE < 16 ? 0 : 1);
     }
 
     public void setBoardX(int x) {
