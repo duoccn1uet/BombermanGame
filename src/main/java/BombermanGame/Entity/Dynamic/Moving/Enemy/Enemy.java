@@ -44,7 +44,7 @@ public abstract class Enemy extends MovingEntity {
 
     @Override
     public void update() {
-        if (this.getAction() == MOVING_ENTITY_ACTION.MOVING) {
+        if (this.getAction() == MOVING_ENTITY_ACTION.MOVING && !(this instanceof Doll)) {
             last = new Position(position.getX(), position.getY());
             position = move();
         }

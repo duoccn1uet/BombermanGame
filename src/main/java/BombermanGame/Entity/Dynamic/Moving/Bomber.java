@@ -35,6 +35,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     public static final DIRECTION DEFAULT_DIRECTION = DIRECTION.RIGHT;
     public static final MOVING_ENTITY_ACTION DEFAULT_ACTION = MOVING_ENTITY_ACTION.STOP;
     public static final int DEFAULT_SPEED = 2;
+    public boolean onBomb = true;
     private int[] countApplyingItems = new int[Item.ITEM_TYPE.size()];
     private final List<KeyCode> keyCodes = Arrays.asList(A, D, W, S, SPACE, ESCAPE);
     private KeyCode currentlyPressed;
@@ -173,6 +174,7 @@ public class Bomber extends MovingEntity implements KeyEventListener {
                         int tmpX = getBoardX();
                         int tmpY = getBoardY();
                         BombermanGame.bombQueue.add(new Bomb(tmpX, tmpY));
+                        onBomb = true;
                     }
                     break;
                 case ESCAPE:
@@ -223,8 +225,11 @@ public class Bomber extends MovingEntity implements KeyEventListener {
     }
 
     protected void collide(Bomb bomb) {
-//        if(last != null)
-//            position = last;
-//        last = null;
+        if(onBomb)
+            return;
+
+        if(last != null)
+            position = last;
+        last = null;
     }
 }

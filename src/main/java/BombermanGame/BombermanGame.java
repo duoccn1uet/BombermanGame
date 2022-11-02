@@ -44,7 +44,7 @@ public class BombermanGame extends Application {
     public static int R_HEIGHT;
     public static Queue<Bomb> bombQueue = new LinkedList<>();
     public static final int NUMBER_OF_LEVELS = 5;
-    private int level = 2;
+    private int level = 3;
     private String path;
     private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
     private static ArrayList<StillEntity> stillEntities = new ArrayList<>();
@@ -53,7 +53,7 @@ public class BombermanGame extends Application {
     public static Group root;
     private Scene scene;
     private Canvas canvas;
-    private GraphicsContext gc;
+    private static GraphicsContext gc;
     private Sound screenSound;
     private TimerTask countDownTask;
     private static Sound gameOverSound;
@@ -74,7 +74,7 @@ public class BombermanGame extends Application {
     private static final int MAX_ITEMS_PER_LEVEL = 10;
     private static final int MIN_ITEMS_PER_LEVEL = 4;
     private static final int[] ITEMS_PER_LEVEL = new int[NUMBER_OF_LEVELS];
-    private static final int[] TIME_PER_LEVEL = {300, 300, 300};
+    private static final int[] TIME_PER_LEVEL = {300, 300, 300, 300};
     private static int remainingTime;
     public static int score = 0;
     public static int getRemainingTime() {
@@ -208,6 +208,8 @@ public class BombermanGame extends Application {
     }
 
     private void checkCollision(Entity entity) {
+        boolean bomberFlag = true;
+        int cnt = 0;
         for(Entity entity2 : dynamicEntities) {
             if(handleCollision(entity, entity2))
                 break;
@@ -217,12 +219,21 @@ public class BombermanGame extends Application {
                 break;
         }
         for(Entity entity2 : bombQueue) {
-            if(handleCollision(entity, entity2))
+            cnt ++;
+            if(handleCollision(entity, entity2)) {
                 break;
+            }
+            if(entity instanceof Bomber && cnt == bombQueue.size()) {
+                bomberFlag = false;
+            }
         }
-        for(Entity entity2 : stillEntities) {
-            if(handleCollision(entity, entity2))
-                break;
+
+        if(!bomberFlag) {
+            bomber.onBomb = false;
+        }
+
+        if(bombQueue.size() < bomber.getMaxSpawnedBomb()){
+            bomber.onBomb = true;
         }
     }
 
@@ -299,7 +310,6 @@ public class BombermanGame extends Application {
                 nodes.remove(i--);
     }
     private void update() {
-
         switch (gameStatus) {
             case MENU:
                 reset();
@@ -373,6 +383,10 @@ public class BombermanGame extends Application {
     }
     public static GAME_STATUS getGameStatus() {
         return gameStatus;
+    }
+
+    public static GraphicsContext getGc() {
+        return gc;
     }
 
     @Override

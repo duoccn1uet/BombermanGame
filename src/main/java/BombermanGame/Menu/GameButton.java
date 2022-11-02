@@ -4,6 +4,8 @@ import BombermanGame.Entity.Position;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+import java.io.File;
+
 public class GameButton {
     public Image[] image = new Image[3];
     public Position position;
@@ -11,14 +13,14 @@ public class GameButton {
     public static int BUTTON_WIDTH = 200;
     public static int BUTTON_HEIGHT = 65;
 
-    public GameButton(int x, int y, String image0, String image1) {
+    public GameButton(int x, int y, String p1, String p2) {
         this.position = new Position(x, y);
         // default
-        this.image[0] = ImageComponent.getFxImage(image0);
+        this.image[0] = ImageComponent.getFxImage(p1);
         // hovered
-        this.image[1] = ImageComponent.getFxImage(image1);
+        this.image[1] = ImageComponent.getFxImage(p2);
         // clicked
-        this.image[2] = ImageComponent.getFxImage(image0);
+        this.image[2] = ImageComponent.getFxImage(p1);
     }
 
     public void hovered(Position cursor) {
