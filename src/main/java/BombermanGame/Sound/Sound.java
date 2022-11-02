@@ -20,7 +20,8 @@ public class Sound {
         SCREEN("screen.wav"),
         APPLY_ITEM("power_up.wav"),
         BOMBER_DEAD("bomber dead.mp3"),
-        GAME_OVER("game over.wav");
+        GAME_OVER("game over.wav"),
+        CONGRATULATION("congratulation.wav");
 
         private String name;
         FILE(String name) {

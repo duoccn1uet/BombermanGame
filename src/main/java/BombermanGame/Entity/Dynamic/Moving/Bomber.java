@@ -69,6 +69,9 @@ public class Bomber extends MovingEntity implements KeyEventListener {
         setDefaultSpecifications(DEFAULT_DIRECTION, DEFAULT_ACTION, DEFAULT_SPEED);
     }
 
+    public void setPosition(Position position) {
+        this.position = position;
+    }
     @Override
     public void update() {
         super.update();
@@ -111,6 +114,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             CommonVar.timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
+                    if (BombermanGame.getGameStatus() != GAME_STATUS.RUNNING)
+                        return;
                     if (--countApplyingItems[type] == 0)
                         Bomb.powerDown();
                 }
@@ -121,6 +126,8 @@ public class Bomber extends MovingEntity implements KeyEventListener {
             CommonVar.timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
+                    if (BombermanGame.getGameStatus() != GAME_STATUS.RUNNING)
+                        return;
                     if (--countApplyingItems[type] == 0)
                         speed = DEFAULT_SPEED;
                 }

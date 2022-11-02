@@ -1,12 +1,13 @@
 package BombermanGame.ScoreBoard;
 
-import BombermanGame.CommonVar;
+import BombermanGame.GAME_STATUS;
 import BombermanGame.BombermanGame;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
 import BombermanGame.Entity.Still.Item.Item;
 import BombermanGame.Sprite.Sprite;
+import BombermanGame.TaskHandler.Text;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -14,7 +15,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -142,6 +142,7 @@ public class ScoreBoard {
 //        ENEMY_KILLED,
 //        ITEM;
         TIME_REMAINING,
+        LEVEL,
         HIGH_SCORE,
         SCORE,
         MAX_BOMB_SPAWN,
@@ -186,7 +187,7 @@ public class ScoreBoard {
         private static final Color CONTENT_COLOR;
 
         static {
-            FONT_PATH = new File(".").getAbsolutePath() + "/src/main/resources/Font/minecraft-font/MinecraftRegular-Bmg3.otf";
+            FONT_PATH = new File(".").getAbsolutePath() + "/src/main/resources/Font/MinecraftRegular-Bmg3.otf";
             FONT_SIZE = 28;
             FONT = Font.loadFont("file:" + FONT_PATH, FONT_SIZE);
             CONTENT_COLOR = Color.WHITE;
@@ -277,7 +278,7 @@ public class ScoreBoard {
         fps.setText("FPS: ");
         fps.setFont(Font.loadFont("file:" + Property.FONT_PATH, 15));
         fps.setFill(Color.BLACK);
-        fps.setX(BombermanGame.R_WIDTH - 32 - 55);
+        fps.setX(BombermanGame.R_WIDTH - WIDTH * 32 + 32 + 5);
         fps.setY(BombermanGame.R_HEIGHT - 32 - 7);
         a.add(fps);
 
@@ -321,6 +322,16 @@ public class ScoreBoard {
                     @Override
                     public void update() {
                         content.setText(" " + BombermanGame.getRemainingTime() + "s");
+                    }
+                });
+                break;
+            case LEVEL:
+                key = new TextKeyProperty("");
+                content = new Text("");
+                properties[i].add(new Property(key, content, PROPERTY_X, getPropertyY(property, 0)) {
+                    @Override
+                    public void update() {
+                        content.setText("Lv " + BombermanGame.getLevel());
                     }
                 });
                 break;
@@ -395,6 +406,8 @@ public class ScoreBoard {
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
+                        if (BombermanGame.getGameStatus() != GAME_STATUS.RUNNING)
+                            return;
                         if (eKey.remainingTime >= 0) {
                             content.setText(" " + eKey.remainingTime + "s");
                             --eKey.remainingTime;

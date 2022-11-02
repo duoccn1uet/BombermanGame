@@ -1,16 +1,17 @@
 package BombermanGame;
 
+import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
+import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
+import BombermanGame.TaskHandler.Text;
 import BombermanGame.Entity.Dynamic.DynamicEntity;
 import BombermanGame.Entity.Dynamic.Moving.Bomber;
-import BombermanGame.Entity.Dynamic.Moving.Enemy.Balloom;
-import BombermanGame.Entity.Dynamic.Moving.Enemy.Doll;
-import BombermanGame.Entity.Dynamic.Moving.Enemy.Kondoria;
-import BombermanGame.Entity.Dynamic.Moving.Enemy.Oneal;
+import BombermanGame.Entity.Dynamic.Moving.Enemy.*;
 import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
 import BombermanGame.Entity.Dynamic.NotMoving.Brick;
 import BombermanGame.Entity.Entity;
 import BombermanGame.Entity.Still.Grass;
 import BombermanGame.Entity.Still.Item.Item;
+import BombermanGame.Entity.Still.Portal;
 import BombermanGame.Entity.Still.StillEntity;
 import BombermanGame.Entity.Still.Wall;
 import BombermanGame.Sound.Sound;
@@ -23,16 +24,21 @@ import BombermanGame.TaskHandler.MouseEventHandler.MouseEventHandler;
 import BombermanGame.TaskHandler.MouseEventHandler.MouseEventHandlerImpl;
 import BombermanGame.ScoreBoard.ScoreBoard;
 import BombermanGame.Sprite.Sprite;
+import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.*;
 import java.util.*;
@@ -43,8 +49,8 @@ public class BombermanGame extends Application {
     public static int R_WIDTH;
     public static int R_HEIGHT;
     public static Queue<Bomb> bombQueue = new LinkedList<>();
-    public static final int NUMBER_OF_LEVELS = 5;
-    private int level = 2;
+    public static int NUMBER_OF_LEVELS = 0;
+    private static int level = 2;
     private String path;
     private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
     private static ArrayList<StillEntity> stillEntities = new ArrayList<>();
@@ -57,6 +63,7 @@ public class BombermanGame extends Application {
     private Sound screenSound;
     private TimerTask countDownTask;
     private static Sound gameOverSound;
+    private Portal portal = new Portal(WIDTH-2, HEIGHT-2);
 
     public static ArrayList<DynamicEntity> getDynamicEntities() {
         return dynamicEntities;
@@ -73,8 +80,8 @@ public class BombermanGame extends Application {
     public static GAME_STATUS gameStatus = GAME_STATUS.MENU;
     private static final int MAX_ITEMS_PER_LEVEL = 10;
     private static final int MIN_ITEMS_PER_LEVEL = 4;
-    private static final int[] ITEMS_PER_LEVEL = new int[NUMBER_OF_LEVELS];
-    private static final int[] TIME_PER_LEVEL = {300, 300, 300};
+    private static int[] ITEMS_PER_LEVEL;
+    private static final int[] TIME_PER_LEVEL = {600, 600, 600};
     private static int remainingTime;
     public static int score = 0;
     public static int getRemainingTime() {
@@ -87,6 +94,20 @@ public class BombermanGame extends Application {
     MouseEventHandler mouseEventHandler = new MouseEventHandlerImpl();
 
     public static ScoreBoard scoreBoard;
+
+    static {
+        File directory = new File(".");
+        NUMBER_OF_LEVELS = 1;
+        while (new File(directory.getAbsolutePath() + "/src/main/resources/Map/level_" + NUMBER_OF_LEVELS + ".m").exists())
+            ++NUMBER_OF_LEVELS;
+        --NUMBER_OF_LEVELS;
+        ITEMS_PER_LEVEL = new int[NUMBER_OF_LEVELS];
+    }
+
+    public static int getLevel() {
+        return level;
+    }
+
     public void runGame(String[] args) {
         launch(args);
     }
@@ -167,10 +188,10 @@ public class BombermanGame extends Application {
                 if (dynamicEntities.get(i) instanceof Brick)
                     brickIndices.add(i);
             Collections.shuffle(brickIndices);
-            ITEMS_PER_LEVEL[level] = (int) CommonFunction.rand(MIN_ITEMS_PER_LEVEL, MAX_ITEMS_PER_LEVEL);
-            if (ITEMS_PER_LEVEL[level] > brickIndices.size())
-                ITEMS_PER_LEVEL[level] = brickIndices.size();
-            for (int i = 0; i < ITEMS_PER_LEVEL[level]; ++i) {
+            ITEMS_PER_LEVEL[level-1] = (int) CommonFunction.rand(MIN_ITEMS_PER_LEVEL, MAX_ITEMS_PER_LEVEL);
+            if (ITEMS_PER_LEVEL[level-1] > brickIndices.size())
+                ITEMS_PER_LEVEL[level-1] = brickIndices.size();
+            for (int i = 0; i < ITEMS_PER_LEVEL[level-1]; ++i) {
                 int index = brickIndices.get(i);
                 itemList.add(Item.randomItem((Brick) dynamicEntities.get(index)));
             }
@@ -256,6 +277,8 @@ public class BombermanGame extends Application {
                 g.render(gc);
         });
         scoreBoard.render(gc);
+        if (completedLevel())
+            portal.render(gc);
     }
     private void render() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -281,6 +304,8 @@ public class BombermanGame extends Application {
          countDownTask = new TimerTask() {
             @Override
             public void run() {
+                if (getGameStatus() == GAME_STATUS.PAUSED)
+                    return;
                 if (remainingTime > 0) {
                     --remainingTime;
                 }
@@ -292,8 +317,9 @@ public class BombermanGame extends Application {
         CommonVar.timer.schedule(countDownTask,0, 1000);
     }
     private void reset() {
+        if (gameStatus == GAME_STATUS.MENU || bomber == null || bomber.isVanished())
+            score = 0;
         gameOverSound.stop();
-        score = 0;
         if (countDownTask != null)
             countDownTask.cancel();
         clearMap();
@@ -301,6 +327,13 @@ public class BombermanGame extends Application {
         for (int i = 0; i < nodes.size(); ++i)
             if (nodes.get(i) instanceof Text)
                 nodes.remove(i--);
+    }
+    private boolean completedLevel() {
+        return true;
+        /**for (DynamicEntity entity : dynamicEntities)
+            if (entity instanceof Enemy)
+                return false;
+        return true;*/
     }
     private void update() {
 
@@ -338,12 +371,31 @@ public class BombermanGame extends Application {
                 dynamicEntities.forEach(Entity::update);
                 checkCollision();
                 scoreBoard.update();
+                if (bomber.getBoardX() == portal.getBoardX() && bomber.getBoardY() == portal.getBoardY())
+                    setGameStatus(GAME_STATUS.TRANSITION_LEVEL);
+                break;
+            case TRANSITION_LEVEL:
+                if (endtrans) {
+                    if (level > NUMBER_OF_LEVELS) {
+                        level = 1;
+                        setGameStatus(GAME_STATUS.MENU);
+                    } else {
+                        setGameStatus(GAME_STATUS.GAME_LOAD);
+                    }
+                    endtrans = false;
+                }
+                else {
+                    transitionLevel();
+                }
                 break;
             case PAUSED:
                 pause.update();
                 break;
             case GAME_OVER:
                 gameOver.update();
+                break;
+            case END_GAME:
+                setGameStatus(GAME_STATUS.MENU);
                 break;
         }
     }
@@ -377,6 +429,88 @@ public class BombermanGame extends Application {
         return gameStatus;
     }
 
+    private boolean running1 = false;
+    private boolean running2 = false;
+    private boolean running3 = false;
+    private boolean endtrans = false;
+    private int brunning = 0;
+    private void transitionLevel() {
+        if (brunning == 0) {
+            reset();
+            gc.setFill(Color.BLACK);
+            brunning = 1;
+            bomber = new Bomber(0, HEIGHT / 2);
+            bomber.setAction(MOVING_ENTITY_ACTION.MOVING);
+            bomber.setDirection(DIRECTION.RIGHT);
+            bomber.setSpeed(3);
+            return;
+        }
+        if (brunning == 1) {
+            gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            bomber.update();
+            bomber.render(gc);
+            if (bomber.getX() > canvas.getWidth())
+                brunning = 2;
+            return;
+        }
+        if (running1 || running2 || running3) {
+            return;
+        }
+        endtrans = false;
+        ++level;
+        System.out.println(level);
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        String s;
+        int fontSize = 0;
+        if (level > NUMBER_OF_LEVELS) {
+            screenSound.stop();
+            new Sound(Sound.FILE.CONGRATULATION.toString()).play();
+            s = "      Congratulation\n You passed all level♥";
+            fontSize = 60;
+        } else {
+            s = "☻ Level " + level;
+            fontSize = 100;
+        }
+        Text content = new Text( s,"MinecraftRegular-Bmg3.otf", fontSize, Color.WHITE);
+        content.setX((R_WIDTH - content.getLayoutBounds().getWidth()) / 2);
+        content.setY((double) (R_HEIGHT / 2) + content.getLayoutBounds().getHeight() / 3);
+        root.getChildren().add(content);
+        FadeTransition ft = new FadeTransition();
+        ft.setNode(content);
+
+        /// fade in
+        ft.setDuration(Duration.seconds(3));
+        ft.setFromValue(0.0);
+        ft.setToValue(1.0);
+        ft.play();
+        running1 = true;
+        ft.setOnFinished(actionEvent -> {
+            running1 = false;
+            running2 = true;
+            FadeTransition ft2 = new FadeTransition();
+            ft2.setNode(content);
+            ft2.setDuration(Duration.seconds(2));
+            ft2.setFromValue(1.0);
+            ft2.setToValue(1.0);
+            ft2.play();
+            ft2.setOnFinished(actionEvent1 -> {
+                running2 = false;
+                running3 = true;
+                FadeTransition ft3 = new FadeTransition();
+                ft3.setNode(content);
+                ft3.setDuration(Duration.seconds(3));
+                ft3.setFromValue(1.0);
+                ft3.setToValue(0.0);
+                ft3.play();
+                ft3.setOnFinished(actionEvent2 -> {
+                    running3 = false;
+                    endtrans = true;
+                    brunning = 0;
+                });
+            });
+        });
+    }
     @Override
     public void start(Stage stage) throws Exception {
         canvas = new Canvas(Sprite.SCALED_SIZE * (WIDTH + ScoreBoard.WIDTH), Sprite.SCALED_SIZE * HEIGHT);
@@ -389,11 +523,13 @@ public class BombermanGame extends Application {
         scene = new Scene(root);
         stage.setTitle("Bomberman");
         stage.setScene(scene);
+        ///transitionLevel();
 //
 //        scoreBoard = new ScoreBoard(root);
 //        remainingTime = TIME_PER_LEVEL[level-1];
 //        loadMap(level);
 //        loadEventHandler();
+
         screenSound = new Sound(Sound.FILE.SCREEN.toString());
         screenSound.setVolume(0.3);
         screenSound.setLoop(-1);
@@ -407,9 +543,13 @@ public class BombermanGame extends Application {
                     startTimeStamp = l;
                 lastTimeStamp = currentTimeStamp;
                 currentTimeStamp = l;
-                checkCollision();
-                update();
-                render();
+                if (gameStatus == GAME_STATUS.TRANSITION_LEVEL)
+                    update();
+                else {
+                    checkCollision();
+                    update();
+                    render();
+                }
             }
         };
         timer.start();
