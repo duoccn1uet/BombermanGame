@@ -1,7 +1,13 @@
 package BombermanGame.Entity.Dynamic.Moving.Enemy;
 
+import BombermanGame.BombermanGame;
 import BombermanGame.Entity.Dynamic.Moving.DIRECTION;
 import BombermanGame.Entity.Dynamic.Moving.MOVING_ENTITY_ACTION;
+import BombermanGame.Entity.Dynamic.NotMoving.Bomb;
+import BombermanGame.Entity.Dynamic.NotMoving.Brick;
+import BombermanGame.Entity.Entity;
+import BombermanGame.Entity.Position;
+import BombermanGame.Entity.Still.Wall;
 import javafx.scene.image.Image;
 
 public class Kondoria extends Enemy{
@@ -18,6 +24,34 @@ public class Kondoria extends Enemy{
     public Kondoria(int x, int y) {
         super(x, y);
         setDefaultSpecifications(DEFAULT_DIRECTION, DEFAULT_ACTION, DEFAULT_SPEED);
+    }
+
+    public void update() {
+        super.update();
+    }
+
+    @Override
+    public void collide(Entity entity) {
+        if(entity instanceof Wall)
+            collide((Wall) entity);
+        if(entity instanceof Bomb)
+            collide((Bomb) entity);
+    }
+
+    protected void collide(Wall wall) {
+        if(last != null)
+            position = last;
+        last = null;
+        moveToPos(position);
+        changeDirection();
+    }
+
+    protected void collide(Bomb bomb) {
+        if(last != null)
+            position = last;
+        last = null;
+        moveToPos(position);
+        changeDirection();
     }
 
     @Override

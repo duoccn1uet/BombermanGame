@@ -336,14 +336,14 @@ public class ScoreBoard {
                 });
                 break;
             case HIGH_SCORE:
-                key = new ImageKeyProperty("high score.png");
+                /**key = new ImageKeyProperty("high score.png");
                 content = new Text(" default");
                 properties[i].add(new Property(key, content, PROPERTY_X, getPropertyY(property, 0)) {
                     @Override
                     public void update() {
 
                     }
-                });
+                });*/
                 break;
             case SCORE:
                 key = new ImageKeyProperty("score.png");

@@ -12,17 +12,15 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 
-import java.awt.*;
-
 public class Menu implements MouseEventListener {
     public Image image;
     public Position position;
     public GameButton play;
 
     public Menu() {
-        this.position = new Position(0, 0);
+        this.position = new Position(120, 0);
         this.image = ImageComponent.getFxImage("menu.png");
-        this.play = new GameButton(300, 350, "play.png", "play_hovered.png");
+        this.play = new GameButton(400, 350, "play.png", "play_hovered.png");
     }
 
     public void update() {

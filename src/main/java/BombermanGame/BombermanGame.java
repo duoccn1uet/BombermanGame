@@ -36,21 +36,32 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 
 import java.io.*;
 import java.util.*;
 
 public class BombermanGame extends Application {
+    private Button sound;
+    private boolean soundOn = true;
+    private ImageView unmuteSound = new ImageView(Sprite.getImage("sound_button_on.png"));
+    private ImageView muteSound = new ImageView(Sprite.getImage("sound_button_off.png"));
+
+    private static final File LOG_DIR = new File(new File(".").getAbsoluteFile() + "/src/main/resources/Log/");
+    private static FileWriter logWriter;
     public static int WIDTH = 25;
     public static int HEIGHT = 15;
     public static int R_WIDTH;
     public static int R_HEIGHT;
     public static Queue<Bomb> bombQueue = new LinkedList<>();
     public static int NUMBER_OF_LEVELS = 0;
-    private static int level = 2;
+    private static int level = 3;
     private String path;
     private static ArrayList<DynamicEntity> dynamicEntities = new ArrayList<>();
     private static ArrayList<StillEntity> stillEntities = new ArrayList<>();
@@ -59,7 +70,7 @@ public class BombermanGame extends Application {
     public static Group root;
     private Scene scene;
     private Canvas canvas;
-    private GraphicsContext gc;
+    private static GraphicsContext gc;
     private Sound screenSound;
     private TimerTask countDownTask;
     private static Sound gameOverSound;
@@ -105,6 +116,11 @@ public class BombermanGame extends Application {
         TIME_PER_LEVEL = new int[NUMBER_OF_LEVELS];
         for (int i = 0; i < NUMBER_OF_LEVELS; ++i)
             TIME_PER_LEVEL[i] = 600;
+        /**try {
+            logWriter = new FileWriter(LOG_DIR);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
     }
 
     public static int getLevel() {
@@ -231,26 +247,41 @@ public class BombermanGame extends Application {
         if (pause != null) mouseEventHandler.removeEvent(gameOver);
     }
 
-    private void checkCollision() {
-        for(Entity entity1 : dynamicEntities) {
-            for(Entity entity2 : dynamicEntities) {
-                if(handleCollision(entity1, entity2))
-                    break;
+    private void checkCollision(Entity entity) {
+        boolean bomberFlag = true;
+        int cnt = 0;
+        for(Entity entity2 : dynamicEntities) {
+            if(handleCollision(entity, entity2))
+                break;
+        }
+        for(Entity entity2 : dynamicEntities) {
+            if(handleCollision(entity, entity2))
+                break;
+        }
+        for(Entity entity2 : stillEntities) {
+            if(handleCollision(entity, entity2))
+                break;
+        }
+        for(Entity entity2 : stillEntities) {
+            if(handleCollision(entity,entity2))
+                break;
+        }
+        for(Entity entity2 : bombQueue) {
+            cnt ++;
+            if(handleCollision(entity, entity2)) {
+                break;
             }
-            for(Entity entity2 : stillEntities) {
-                if(handleCollision(entity1, entity2));
-            }
-            for(Entity entity2 : bombQueue) {
-                if(handleCollision(entity1, entity2))
-                    break;
+            if(entity instanceof Bomber && cnt == bombQueue.size()) {
+                bomberFlag = false;
             }
         }
 
-        for(Entity entity1 : stillEntities) {
-            for(Entity entity2 : dynamicEntities) {
-                if(handleCollision(entity1, entity2))
-                    break;
-            }
+        if(!bomberFlag) {
+            bomber.onBomb = false;
+        }
+
+        if(bombQueue.size() < bomber.getMaxSpawnedBomb()){
+            bomber.onBomb = true;
         }
     }
 
@@ -339,7 +370,6 @@ public class BombermanGame extends Application {
         return true;*/
     }
     private void update() {
-
         switch (gameStatus) {
             case MENU:
                 reset();
@@ -371,8 +401,10 @@ public class BombermanGame extends Application {
                     bombQueue.remove();
                 for (Bomb bomb : bombQueue)
                     bomb.update();
-                dynamicEntities.forEach(Entity::update);
-                checkCollision();
+                for(Entity entity : dynamicEntities) {
+                    entity.update();
+                    checkCollision(entity);
+                }
                 scoreBoard.update();
                 if (bomber.getBoardX() == portal.getBoardX() && bomber.getBoardY() == portal.getBoardY())
                     setGameStatus(GAME_STATUS.TRANSITION_LEVEL);
@@ -431,7 +463,6 @@ public class BombermanGame extends Application {
     public static GAME_STATUS getGameStatus() {
         return gameStatus;
     }
-
     private boolean running1 = false;
     private boolean running2 = false;
     private boolean running3 = false;
@@ -461,7 +492,6 @@ public class BombermanGame extends Application {
         }
         endtrans = false;
         ++level;
-        System.out.println(level);
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         String s;
@@ -514,6 +544,10 @@ public class BombermanGame extends Application {
             });
         });
     }
+    public static GraphicsContext getGc() {
+        return gc;
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         canvas = new Canvas(Sprite.SCALED_SIZE * (WIDTH + ScoreBoard.WIDTH), Sprite.SCALED_SIZE * HEIGHT);
@@ -539,6 +573,27 @@ public class BombermanGame extends Application {
         screenSound.play();
 
         gameOverSound = new Sound(Sound.FILE.GAME_OVER.toString());
+
+        sound = new Button();
+        sound.setGraphic(unmuteSound);
+        sound.setTranslateX(canvas.getWidth() - 32 - 50);
+        sound.setTranslateY(canvas.getHeight() - 32 - 45);
+        root.getChildren().add(sound);
+        sound.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                soundOn = !soundOn;
+                if (soundOn) {
+                    Sound.doAll(Sound::unMute);
+                    sound.setGraphic(unmuteSound);
+                }
+                else {
+                    Sound.doAll(Sound::mute);
+                    sound.setGraphic(muteSound);
+                }
+            }
+        });
+
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long l) {
@@ -549,7 +604,6 @@ public class BombermanGame extends Application {
                 if (gameStatus == GAME_STATUS.TRANSITION_LEVEL)
                     update();
                 else {
-                    checkCollision();
                     update();
                     render();
                 }

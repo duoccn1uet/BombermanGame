@@ -13,6 +13,8 @@ import java.util.function.Consumer;
 public class Sound {
     public static final String RESOURCES_PATH;
     private static ArrayList<Sound> allElements = new ArrayList<>();
+    private static boolean isMuted = false;
+    private static Consumer<? super Sound> lastAction = null;
 
     public static enum FILE {
         BOMB_TIMER("bomb timer.mp3"),
@@ -47,6 +49,8 @@ public class Sound {
 
             });
             BombermanGame.root.getChildren().add(new MediaView(player));
+            if (lastAction != null)
+                lastAction.accept(this);
             allElements.add(this);
         } catch (Exception e) {
             System.out.println("Error occurred when load file " + fileName);
@@ -127,5 +131,6 @@ public class Sound {
 
     public static void doAll(Consumer<? super Sound> action) {
         allElements.forEach(action);
+        lastAction = action;
     }
 }
