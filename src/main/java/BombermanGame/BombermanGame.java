@@ -81,7 +81,7 @@ public class BombermanGame extends Application {
     private static final int MAX_ITEMS_PER_LEVEL = 10;
     private static final int MIN_ITEMS_PER_LEVEL = 4;
     private static int[] ITEMS_PER_LEVEL;
-    private static final int[] TIME_PER_LEVEL = {600, 600, 600};
+    private static int[] TIME_PER_LEVEL;
     private static int remainingTime;
     public static int score = 0;
     public static int getRemainingTime() {
@@ -102,6 +102,9 @@ public class BombermanGame extends Application {
             ++NUMBER_OF_LEVELS;
         --NUMBER_OF_LEVELS;
         ITEMS_PER_LEVEL = new int[NUMBER_OF_LEVELS];
+        TIME_PER_LEVEL = new int[NUMBER_OF_LEVELS];
+        for (int i = 0; i < NUMBER_OF_LEVELS; ++i)
+            TIME_PER_LEVEL[i] = 600;
     }
 
     public static int getLevel() {
